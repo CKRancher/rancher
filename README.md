@@ -50,6 +50,11 @@ deployment.extensions/tiller-deploy patched
 
 ```bash
 $ helm install --namespace monitoring --name demo stable/prometheus-operator
+```
+
+<details><summary>Click for full command output</summary>
+
+```bash  
 NAME:   demo
 LAST DEPLOYED: Mon Mar  9 20:56:20 2020
 NAMESPACE: monitoring
@@ -258,6 +263,8 @@ The Prometheus Operator has been installed. Check its status by running:
 Visit https://github.com/coreos/prometheus-operator for instructions on how
 to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
+</details></br>
+
 
 
 ![01](images/01-rancher-redis-cluster-architecture.png)

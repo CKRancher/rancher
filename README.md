@@ -265,6 +265,26 @@ to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
 </details></br>
 
+kubectl get pods
+kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
+kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
+
+kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
+kubectl -n monitoring get prometheusrules
+kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
+kubectl -n monitoring edit prometheusrules demo-prometheus-operator-alertmanager.rules
+kubectl -n monitoring describe prometheusrules demo-prometheus-operator-alertmanager.rules
+
+cat alertmanager.yaml
+cat alertmanager-secret-k8s.yaml
+sed "s/ALERTMANAGER_CONFIG/$(cat alertmanager.yaml | base64 -w0)/g" alertmanager-secret-k8s.yaml | kubectl apply -f -
+
+cat create_deploy.yml
+kubectl apply -f create_deploy.yml
+
+kubectl get pods
+kubectl exec -it nginx-deployment-5754944d6c-dj42p -- /bin/bash
+
 
 
 ![01](images/01-rancher-redis-cluster-architecture.png)

@@ -16,8 +16,7 @@ Let's see below all the components that form the Prometheus ecosystem (photo cre
 
 ![01](images/01-rancher-prometheus-architecture.png)
 
-From all these worths mentionining once more few terms we already used or are relevant to our exercise.
-
+From all these, worths mentionining once more few terms we already used or are relevant to our exercise:
 - Prometheus Server: main component that scrapes and stores metrics in a time series database.
     - Scrape: pulling method to retrieve metrics; it happens at a 'scrape_interval' usually of 10-60sec.
     - Target: server client where data gets retrieved from.

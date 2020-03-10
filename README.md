@@ -5,14 +5,14 @@
 [**Prometheus**](https://prometheus.io) is an open-source system for monitoring and alerting originally developed by Soundcloud. It moved to CNCF in 2016 becoming one of the most popular projects after Kubernetes. It it used to monitor from an entire Linux server, to a stand-alone webserver, a database service or a single process. In Prometheus terminology the things it monitors are called **Targets**. Each unit of a target is called **a metric**. It pulls (scrapes) targets over http, at a set interval, to collect metrics and places the data in its **time-series database**. Metrics about targets can be queried using [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query language.
 
 In this article we will show a step-by-step setup guide on how to:
-- install Prometheus Operator in order to monitor/alert based on custom events.
+- install Prometheus (using [prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart) in order to monitor/alert based on custom events.
 - write and configure custom rules, which will fire alerts when conditions are met.
 - integrate Alertmanager in order to  handle these alerts sent by client applications (Prometheus server in this case).
 - integrate Alertmanager with a mail account where notifications will be sent to.
 
 **Understanding Prometheus and its abstractions**
 
-Let's see below all the components that form the Prometheus ecosystem.
+Let's see below all the components that form the Prometheus ecosystem. (photo credit: [http://prometheus.io](https://prometheus.io/docs/introduction/overview/))
 
 ![01](images/01-rancher-prometheus-architecture.png)
 

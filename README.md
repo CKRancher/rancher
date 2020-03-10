@@ -48,6 +48,11 @@ As soon as this operation is ready and you have configured the kubeconfig file w
 
 **Deploying Prometheus software**
 
+In few words, as described by CoreOS - owners of the project, Prometheus Operator makes the Prometheus configuration Kubernetes native and manages and operates Prometheus and Alertmanager clusters.
+
+For this we will use the [stable/prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart.
+
+The default installation deploys the followings components: prometheus-operator, prometheus, alertmanager, node-exporter, kube-state-metrics and grafana. By default, it will scrape the main Kubernetes components: kube-apiserver, kube-scheduler, kube-controller-manager, etcd.
 
 ```bash
 $ gcloud container clusters get-credentials c-hg4tm

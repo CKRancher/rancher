@@ -24,7 +24,17 @@ From all these, worths mentionining once more few terms we already used or are r
 - Alert Manager: component responsible for handling alerts (silencing, inhibition, aggregation and sending out notifications via methods such as email, PagerDuty, Slack, etc)
 - Data visualization: scraped data is stored in local storage and can be queried directly using PromQL or view it via Grafana dashboards.   
 
-## Installing Prometheus
+## Understanding Prometheus Operator
+
+In few words, as described by CoreOS - owners of the project, Prometheus Operator makes the Prometheus configuration Kubernetes native and manages and operates Prometheus and Alertmanager clusters.
+
+The Operator introduces the following Kubernetes custom resource definitions (CRDs): Prometheus, ServiceMonitor, PrometheusRule, Alertmanager. More details about these can be found [here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/design.md). In our demo we will be using `PrometheusRule` to define some custome rules.
+
+To install it, we will use the [stable/prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart.
+
+The default installation deploys the followings components: prometheus-operator, prometheus, alertmanager, node-exporter, kube-state-metrics and grafana. By default, Prometheus  will scrape the main Kubernetes components: kube-apiserver, kube-scheduler, kube-controller-manager, etcd.
+
+## Installing Prometheus software
 
 **Prerequisites**
 
@@ -32,7 +42,7 @@ To perform this demo you will need the following:
 - a Google Cloud Platform account, the free tier provided is more than enough (any other cloud should work the same)
 - [Rancher](https://rancher.com) v2.3.5 (latest while writing the article)
 - Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12 (running EKS or AKS should be the same)
-- helm binary [installed](https://helm.sh/docs/intro/install/) on your working machine
+- helm binary [installed](https://helm.sh/docs/intro/install/) on your working machine and tiller running inside Kubernetes cluster
 
 
 **Starting a Rancher 2.0 instance**

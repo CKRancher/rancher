@@ -12,7 +12,11 @@ In this article we will show a step-by-step setup guide on how to:
 
 **Understanding Prometheus and its abstractions**
 
-Before we proceed, a quick recap on terms we already used and/or the ones which are important for our exercise.
+Let's see below all the components that form the Prometheus ecosystem.
+
+![01](images/01-rancher-prometheus-architecture.png)
+
+From all these worths mentionining once more few terms we already used and are relevant to our exercise.
 
 - Prometheus Server: main component that scrapes and stores metrics in a time series DB.
     - Scrape: pulling method to retrieve metrics.

@@ -98,11 +98,11 @@ clusterrolebinding.rbac.authorization.k8s.io/tiller-cluster-rule created
 $ kubectl --namespace kube-system patch deploy tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 deployment.extensions/tiller-deploy patched
 ```
+</details></br>
 
 ```bash
 $ helm install --namespace monitoring --name demo stable/prometheus-operator
 ```
-</details></br>
 
 <details><summary>Click for full command output</summary>
 

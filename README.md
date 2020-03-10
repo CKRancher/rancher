@@ -10,7 +10,7 @@ In this article we will show a step-by-step setup guide on how to:
 - integrate Alertmanager in order to  handle these alerts sent by client applications (Prometheus server in this case).
 - integrate Alertmanager with a mail account where notifications will be sent to.
 
-**Understanding Prometheus and its abstractions**
+## Understanding Prometheus and its abstractions
 
 Let's see below all the components that form the Prometheus ecosystem. (photo credit: [http://prometheus.io](https://prometheus.io/docs/introduction/overview/))
 
@@ -24,6 +24,22 @@ From all these worths mentionining once more few terms we already used or are re
 - Service discovery: it enables Prometheus to identify the applications it needs to monitor and pull metrics from within a dynamic environment 
 - Alert Manager: component responsible for handling alerts (silencing, inhibition, aggregation and sending out notifications via methods such as email, PagerDuty, Slack, etc)
 - Data visualization: scraped data is stored in local storage and can be queried directly using PromQL or view it via Grafana dashboards.   
+
+## Installing Prometheus
+
+**Prerequisites**
+To perform this demo you will need the following:
+- a Google Cloud Platform account, the free tier provided is more than enough (any other cloud should work the same)
+- [Rancher](https://rancher.com) v2.3.5 (latest while wirting the article)
+- Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12 (running EKS or AKS should be the same)
+
+## Starting a Rancher 2.0 instance
+To begin, start a Rancher 2.0 instance. There is a very intuitive getting started guide for this purpose [here](https://rancher.com/quick-start/).
+
+## Using Rancher to deploy a GKE cluster
+Use Rancher to set up and configure your Kubernetes cluster, follow the how-to [guide](https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/hosted-kubernetes-clusters/gke/).
+
+## Deploying Elasticsearch
 
 
 

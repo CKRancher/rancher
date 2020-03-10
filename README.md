@@ -2,16 +2,24 @@
 
 ## Introduction
 
-[**Prometheus**](https://prometheus.io) is an open-source system for monitoring and alerting originally developed by Soundcloud. It moved to CNCF in 2016 becoming one of the most popular projects after Kubernetes. It it used to monitor from an entire Linux server, to a stand-alone webserver, a database service or a single process. In Prometheus terminology the things it monitors are called **Targets**. Each unit of a target is called **a metric**. It scrapes targets at a set interval to collect metrics and stores them in a **time-series database**. Metrics about targets can be queried using [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query language.
+[**Prometheus**](https://prometheus.io) is an open-source system for monitoring and alerting originally developed by Soundcloud. It moved to CNCF in 2016 becoming one of the most popular projects after Kubernetes. It it used to monitor from an entire Linux server, to a stand-alone webserver, a database service or a single process. In Prometheus terminology the things it monitors are called **Targets**. Each unit of a target is called **a metric**. It pulls (scrapes) targets over http, at a set interval, to collect metrics and places the data in its **time-series database**. Metrics about targets can be queried using [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query language.
 
 In this article we will show a step-by-step setup guide on how to:
 - install Prometheus Operator in order to monitor/alert based on custom events.
-- configure custom rules, which will fire alerts when conditions are met.
+- write and configure custom rules, which will fire alerts when conditions are met.
 - integrate Alertmanager in order to  handle these alerts sent by client applications (Prometheus server in this case).
 - integrate Alertmanager with a mail account where notifications will be sent to.
 
-It takes care of deduplicating, grouping, and routing them to the correct receiver integration such as email, PagerDuty, or OpsGenie. It also takes care of silencing and inhibition of alerts.
 **Understanding Prometheus and its abstractions**
+
+Before we proceed, a quick recap on terms we already used and/or the ones which are important for our exercise.
+
+- Prometheus Server: main component that scrapes and stores metrics in a time series DB.
+    - Scrape: pulling method to retrieve metrics.
+    - Target: server client where data gets retrieved from.
+ - Alert Manager: component responsible for handling alerts.
+
+
 
 We will need a VM (can be the same with the one hosting our Rancher instance) with `Google Cloud SDK` and `kubelet` installed. Make sure that gcloud has access to the Cloud Platform with Google user credentials (`gcloud init` and `gcloud auth login`).
 As soon as cluster is deployed, we can check basic kubectl commands.

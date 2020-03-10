@@ -33,23 +33,22 @@ To perform this demo you will need the following:
 - a Google Cloud Platform account, the free tier provided is more than enough (any other cloud should work the same)
 - [Rancher](https://rancher.com) v2.3.5 (latest while writing the article)
 - Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12 (running EKS or AKS should be the same)
+- helm binary [installed](https://helm.sh/docs/intro/install/) on your working machine
+
 
 **Starting a Rancher 2.0 instance**
 
 To begin, start a Rancher 2.0 instance. There is a very intuitive getting started guide for this purpose [here](https://rancher.com/quick-start/).
 
+
 **Using Rancher to deploy a GKE cluster**
 
 Use Rancher to set up and configure your Kubernetes cluster, follow the how-to [guide](https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/hosted-kubernetes-clusters/gke/).
 
-## Deploying Elasticsearch
+As soon as this operation is ready and you have configured the kubeconfig file with appropriate credentials and endpoint information you can make use of kubectl to point at that specific cluster.
 
+**Deploying Prometheus software**
 
-
-We will need a VM (can be the same with the one hosting our Rancher instance) with `Google Cloud SDK` and `kubelet` installed. Make sure that gcloud has access to the Cloud Platform with Google user credentials (`gcloud init` and `gcloud auth login`).
-As soon as cluster is deployed, we can check basic kubectl commands.
-
-`gcloud container clusters get-credentials` updates a kubeconfig file with appropriate credentials and endpoint information to point kubectl at a specific cluster in Google Kubernetes Engine. 
 
 ```bash
 $ gcloud container clusters get-credentials c-hg4tm

@@ -21,22 +21,25 @@ From all these worths mentionining once more few terms we already used or are re
 - Prometheus Server: main component that scrapes and stores metrics in a time series database.
     - Scrape: pulling method to retrieve metrics; it happens at a 'scrape_interval' usually of 10-60sec.
     - Target: server client where data gets retrieved from.
-- Service discovery: it enables Prometheus to identify the applications it needs to monitor and pull metrics from within a dynamic environment 
+- Service discovery: it enables Prometheus to identify the applications it needs to monitor and pull metrics from within a dynamic environment
 - Alert Manager: component responsible for handling alerts (silencing, inhibition, aggregation and sending out notifications via methods such as email, PagerDuty, Slack, etc)
 - Data visualization: scraped data is stored in local storage and can be queried directly using PromQL or view it via Grafana dashboards.   
 
 ## Installing Prometheus
 
 **Prerequisites**
+
 To perform this demo you will need the following:
 - a Google Cloud Platform account, the free tier provided is more than enough (any other cloud should work the same)
-- [Rancher](https://rancher.com) v2.3.5 (latest while wirting the article)
+- [Rancher](https://rancher.com) v2.3.5 (latest while writing the article)
 - Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12 (running EKS or AKS should be the same)
 
-## Starting a Rancher 2.0 instance
+**Starting a Rancher 2.0 instance**
+
 To begin, start a Rancher 2.0 instance. There is a very intuitive getting started guide for this purpose [here](https://rancher.com/quick-start/).
 
-## Using Rancher to deploy a GKE cluster
+**Using Rancher to deploy a GKE cluster**
+
 Use Rancher to set up and configure your Kubernetes cluster, follow the how-to [guide](https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/hosted-kubernetes-clusters/gke/).
 
 ## Deploying Elasticsearch

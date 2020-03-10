@@ -6,7 +6,7 @@
 
 In this article we will show a step-by-step setup guide on how to:
 - install Prometheus (using [prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart) in order to monitor/alert based on custom events.
-- write and configure custom rules, which will fire alerts when conditions are met.
+- write and configure custom alerting rules, which will fire alerts when conditions are met.
 - integrate Alertmanager in order to  handle these alerts sent by client applications (Prometheus server in this case).
 - integrate Alertmanager with a mail account where notifications will be sent to.
 
@@ -16,12 +16,14 @@ Let's see below all the components that form the Prometheus ecosystem. (photo cr
 
 ![01](images/01-rancher-prometheus-architecture.png)
 
-From all these worths mentionining once more few terms we already used and are relevant to our exercise.
+From all these worths mentionining once more few terms we already used or are relevant to our exercise.
 
-- Prometheus Server: main component that scrapes and stores metrics in a time series DB.
-    - Scrape: pulling method to retrieve metrics.
+- Prometheus Server: main component that scrapes and stores metrics in a time series database.
+    - Scrape: pulling method to retrieve metrics; it happens at a 'scrape_interval' usually of 10-60sec.
     - Target: server client where data gets retrieved from.
- - Alert Manager: component responsible for handling alerts.
+- Service discovery: it enables Prometheus to identify the applications it needs to monitor and pull metrics from within a dynamic environment 
+- Alert Manager: component responsible for handling alerts (silencing, inhibition, aggregation and sending out notifications via methods such as email, PagerDuty, Slack, etc)
+- Data visualization: scraped data is stored in local storage and can be queried directly using PromQL or view it via Grafana dashboards.   
 
 
 

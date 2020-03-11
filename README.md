@@ -319,15 +319,340 @@ to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
 </details></br>
 
-kubectl get pods
-kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
-kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
+```bash
+$ kubectl -n monitoring get pods
+NAME                                                   READY   STATUS    RESTARTS   AGE
+alertmanager-demo-prometheus-operator-alertmanager-0   2/2     Running   0          61s
+demo-grafana-5576fbf669-9l57b                          3/3     Running   0          72s
+demo-kube-state-metrics-67bf64b7f4-4786k               1/1     Running   0          72s
+demo-prometheus-node-exporter-ll8zx                    1/1     Running   0          72s
+demo-prometheus-node-exporter-nqnr6                    1/1     Running   0          72s
+demo-prometheus-node-exporter-sdndf                    1/1     Running   0          72s
+demo-prometheus-operator-operator-b9c9b5457-db9dj      2/2     Running   0          72s
+prometheus-demo-prometheus-operator-prometheus-0       3/3     Running   1          50s
+```
 
-kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
-kubectl -n monitoring get prometheusrules
-kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
-kubectl -n monitoring edit prometheusrules demo-prometheus-operator-alertmanager.rules
-kubectl -n monitoring describe prometheusrules demo-prometheus-operator-alertmanager.rules
+```bash
+kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
+
+kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
+```
+
+```bash
+$ kubectl -n monitoring get prometheusrules
+NAME                                                            AGE
+demo-prometheus-operator-alertmanager.rules                     3m21s
+demo-prometheus-operator-etcd                                   3m21s
+demo-prometheus-operator-general.rules                          3m21s
+demo-prometheus-operator-k8s.rules                              3m21s
+demo-prometheus-operator-kube-apiserver-error                   3m21s
+demo-prometheus-operator-kube-apiserver.rules                   3m21s
+demo-prometheus-operator-kube-prometheus-node-recording.rules   3m21s
+demo-prometheus-operator-kube-scheduler.rules                   3m21s
+demo-prometheus-operator-kubernetes-absent                      3m21s
+demo-prometheus-operator-kubernetes-apps                        3m21s
+demo-prometheus-operator-kubernetes-resources                   3m21s
+demo-prometheus-operator-kubernetes-storage                     3m21s
+demo-prometheus-operator-kubernetes-system                      3m21s
+demo-prometheus-operator-kubernetes-system-apiserver            3m21s
+demo-prometheus-operator-kubernetes-system-controller-manager   3m21s
+demo-prometheus-operator-kubernetes-system-kubelet              3m21s
+demo-prometheus-operator-kubernetes-system-scheduler            3m21s
+demo-prometheus-operator-node-exporter                          3m21s
+demo-prometheus-operator-node-exporter.rules                    3m21s
+demo-prometheus-operator-node-network                           3m21s
+demo-prometheus-operator-node-time                              3m21s
+demo-prometheus-operator-node.rules                             3m21s
+demo-prometheus-operator-prometheus                             3m21s
+demo-prometheus-operator-prometheus-operator                    3m21s
+```
+
+```bash
+$ kubectl -n monitoring describe pod prometheus-demo-prometheus-operator-prometheus-0
+Name:           prometheus-demo-prometheus-operator-prometheus-0
+Namespace:      monitoring
+Priority:       0
+Node:           gke-c-7dkls-default-0-c6ca178a-gmcq/10.132.0.15
+Start Time:     Wed, 11 Mar 2020 18:06:47 +0000
+Labels:         app=prometheus
+                controller-revision-hash=prometheus-demo-prometheus-operator-prometheus-5ccbbd8578
+                prometheus=demo-prometheus-operator-prometheus
+                statefulset.kubernetes.io/pod-name=prometheus-demo-prometheus-operator-prometheus-0
+Annotations:    <none>
+Status:         Running
+IP:             10.40.0.7
+IPs:            <none>
+Controlled By:  StatefulSet/prometheus-demo-prometheus-operator-prometheus
+Containers:
+  prometheus:
+    Container ID:  docker://360db8a9f1cce8d72edd81fcdf8c03fe75992e6c2c59198b89807aa0ce03454c
+    Image:         quay.io/prometheus/prometheus:v2.15.2
+    Image ID:      docker-pullable://quay.io/prometheus/prometheus@sha256:914525123cf76a15a6aaeac069fcb445ce8fb125113d1bc5b15854bc1e8b6353
+    Port:          9090/TCP
+    Host Port:     0/TCP
+    Args:
+      --web.console.templates=/etc/prometheus/consoles
+      --web.console.libraries=/etc/prometheus/console_libraries
+      --config.file=/etc/prometheus/config_out/prometheus.env.yaml
+      --storage.tsdb.path=/prometheus
+      --storage.tsdb.retention.time=10d
+      --web.enable-lifecycle
+      --storage.tsdb.no-lockfile
+      --web.external-url=http://demo-prometheus-operator-prometheus.monitoring:9090
+      --web.route-prefix=/
+    State:       Running
+      Started:   Wed, 11 Mar 2020 18:07:07 +0000
+    Last State:  Terminated
+      Reason:    Error
+      Message:    caller=main.go:648 msg="Starting TSDB ..."
+level=info ts=2020-03-11T18:07:02.185Z caller=web.go:506 component=web msg="Start listening for connections" address=0.0.0.0:9090
+level=info ts=2020-03-11T18:07:02.192Z caller=head.go:584 component=tsdb msg="replaying WAL, this may take awhile"
+level=info ts=2020-03-11T18:07:02.192Z caller=head.go:632 component=tsdb msg="WAL segment loaded" segment=0 maxSegment=0
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:663 fs_type=EXT4_SUPER_MAGIC
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:664 msg="TSDB started"
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:734 msg="Loading configuration file" filename=/etc/prometheus/config_out/prometheus.env.yaml
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:517 msg="Stopping scrape discovery manager..."
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:531 msg="Stopping notify discovery manager..."
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:553 msg="Stopping scrape manager..."
+level=info ts=2020-03-11T18:07:02.194Z caller=manager.go:814 component="rule manager" msg="Stopping rule manager..."
+level=info ts=2020-03-11T18:07:02.194Z caller=manager.go:820 component="rule manager" msg="Rule manager stopped"
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:513 msg="Scrape discovery manager stopped"
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:527 msg="Notify discovery manager stopped"
+level=info ts=2020-03-11T18:07:02.194Z caller=main.go:547 msg="Scrape manager stopped"
+level=info ts=2020-03-11T18:07:02.197Z caller=notifier.go:598 component=notifier msg="Stopping notification manager..."
+level=info ts=2020-03-11T18:07:02.197Z caller=main.go:718 msg="Notifier manager stopped"
+level=error ts=2020-03-11T18:07:02.197Z caller=main.go:727 err="error loading config from \"/etc/prometheus/config_out/prometheus.env.yaml\": couldn't load configuration (--config.file=\"/etc/prometheus/config_out/prometheus.env.yaml\"): open /etc/prometheus/config_out/prometheus.env.yaml: no such file or directory"
+
+      Exit Code:    1
+      Started:      Wed, 11 Mar 2020 18:07:02 +0000
+      Finished:     Wed, 11 Mar 2020 18:07:02 +0000
+    Ready:          True
+    Restart Count:  1
+    Liveness:       http-get http://:web/-/healthy delay=0s timeout=3s period=5s #success=1 #failure=6
+    Readiness:      http-get http://:web/-/ready delay=0s timeout=3s period=5s #success=1 #failure=120
+    Environment:    <none>
+    Mounts:
+      /etc/prometheus/certs from tls-assets (ro)
+      /etc/prometheus/config_out from config-out (ro)
+      /etc/prometheus/rules/prometheus-demo-prometheus-operator-prometheus-rulefiles-0 from prometheus-demo-prometheus-operator-prometheus-rulefiles-0 (rw)
+      /prometheus from prometheus-demo-prometheus-operator-prometheus-db (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from demo-prometheus-operator-prometheus-token-jvbrr (ro)
+  prometheus-config-reloader:
+    Container ID:  docker://de27cdad7067ebd5154c61b918401b2544299c161850daf3e317311d2d17af3d
+    Image:         quay.io/coreos/prometheus-config-reloader:v0.37.0
+    Image ID:      docker-pullable://quay.io/coreos/prometheus-config-reloader@sha256:5e870e7a99d55a5ccf086063efd3263445a63732bc4c04b05cf8b664f4d0246e
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/prometheus-config-reloader
+    Args:
+      --log-format=logfmt
+      --reload-url=http://127.0.0.1:9090/-/reload
+      --config-file=/etc/prometheus/config/prometheus.yaml.gz
+      --config-envsubst-file=/etc/prometheus/config_out/prometheus.env.yaml
+    State:          Running
+      Started:      Wed, 11 Mar 2020 18:07:04 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     100m
+      memory:  25Mi
+    Requests:
+      cpu:     100m
+      memory:  25Mi
+    Environment:
+      POD_NAME:  prometheus-demo-prometheus-operator-prometheus-0 (v1:metadata.name)
+    Mounts:
+      /etc/prometheus/config from config (rw)
+      /etc/prometheus/config_out from config-out (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from demo-prometheus-operator-prometheus-token-jvbrr (ro)
+  rules-configmap-reloader:
+    Container ID:  docker://5804e45380ed1b5374a4c2c9ee4c9c4e365bee93b9ccd8b5a21f50886ea81a91
+    Image:         quay.io/coreos/configmap-reload:v0.0.1
+    Image ID:      docker-pullable://quay.io/coreos/configmap-reload@sha256:e2fd60ff0ae4500a75b80ebaa30e0e7deba9ad107833e8ca53f0047c42c5a057
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      --webhook-url=http://127.0.0.1:9090/-/reload
+      --volume-dir=/etc/prometheus/rules/prometheus-demo-prometheus-operator-prometheus-rulefiles-0
+    State:          Running
+      Started:      Wed, 11 Mar 2020 18:07:06 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     100m
+      memory:  25Mi
+    Requests:
+      cpu:        100m
+      memory:     25Mi
+    Environment:  <none>
+    Mounts:
+      /etc/prometheus/rules/prometheus-demo-prometheus-operator-prometheus-rulefiles-0 from prometheus-demo-prometheus-operator-prometheus-rulefiles-0 (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from demo-prometheus-operator-prometheus-token-jvbrr (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  config:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  prometheus-demo-prometheus-operator-prometheus
+    Optional:    false
+  tls-assets:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  prometheus-demo-prometheus-operator-prometheus-tls-assets
+    Optional:    false
+  config-out:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  prometheus-demo-prometheus-operator-prometheus-rulefiles-0:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      prometheus-demo-prometheus-operator-prometheus-rulefiles-0
+    Optional:  false
+  prometheus-demo-prometheus-operator-prometheus-db:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  demo-prometheus-operator-prometheus-token-jvbrr:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  demo-prometheus-operator-prometheus-token-jvbrr
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age                    From                                          Message
+  ----    ------     ----                   ----                                          -------
+  Normal  Scheduled  4m51s                  default-scheduler                             Successfully assigned monitoring/prometheus-demo-prometheus-operator-prometheus-0 to gke-c-7dkls-default-0-c6ca178a-gmcq
+  Normal  Pulling    4m45s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Pulling image "quay.io/prometheus/prometheus:v2.15.2"
+  Normal  Pulled     4m39s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Successfully pulled image "quay.io/prometheus/prometheus:v2.15.2"
+  Normal  Pulling    4m36s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Pulling image "quay.io/coreos/prometheus-config-reloader:v0.37.0"
+  Normal  Pulled     4m35s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Successfully pulled image "quay.io/coreos/prometheus-config-reloader:v0.37.0"
+  Normal  Pulling    4m34s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Pulling image "quay.io/coreos/configmap-reload:v0.0.1"
+  Normal  Started    4m34s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Started container prometheus-config-reloader
+  Normal  Created    4m34s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Created container prometheus-config-reloader
+  Normal  Pulled     4m33s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Successfully pulled image "quay.io/coreos/configmap-reload:v0.0.1"
+  Normal  Created    4m32s (x2 over 4m36s)  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Created container prometheus
+  Normal  Created    4m32s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Created container rules-configmap-reloader
+  Normal  Started    4m32s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Started container rules-configmap-reloader
+  Normal  Pulled     4m32s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Container image "quay.io/prometheus/prometheus:v2.15.2" already present on machine
+  Normal  Started    4m31s (x2 over 4m36s)  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Started container prometheus
+```
+
+```bash
+$ kubectl -n monitoring exec -it prometheus-demo-prometheus-operator-prometheus-0 -- /bin/sh
+
+/prometheus $ ls /etc/prometheus/rules/prometheus-demo-prometheus-operator-prometheus-rulefiles-0/
+monitoring-demo-prometheus-operator-alertmanager.rules.yaml                    monitoring-demo-prometheus-operator-kubernetes-system-apiserver.yaml
+monitoring-demo-prometheus-operator-etcd.yaml                                  monitoring-demo-prometheus-operator-kubernetes-system-controller-manager.yaml
+monitoring-demo-prometheus-operator-general.rules.yaml                         monitoring-demo-prometheus-operator-kubernetes-system-kubelet.yaml
+monitoring-demo-prometheus-operator-k8s.rules.yaml                             monitoring-demo-prometheus-operator-kubernetes-system-scheduler.yaml
+monitoring-demo-prometheus-operator-kube-apiserver-error.yaml                  monitoring-demo-prometheus-operator-kubernetes-system.yaml
+monitoring-demo-prometheus-operator-kube-apiserver.rules.yaml                  monitoring-demo-prometheus-operator-node-exporter.rules.yaml
+monitoring-demo-prometheus-operator-kube-prometheus-node-recording.rules.yaml  monitoring-demo-prometheus-operator-node-exporter.yaml
+monitoring-demo-prometheus-operator-kube-scheduler.rules.yaml                  monitoring-demo-prometheus-operator-node-network.yaml
+monitoring-demo-prometheus-operator-kubernetes-absent.yaml                     monitoring-demo-prometheus-operator-node-time.yaml
+monitoring-demo-prometheus-operator-kubernetes-apps.yaml                       monitoring-demo-prometheus-operator-node.rules.yaml
+monitoring-demo-prometheus-operator-kubernetes-resources.yaml                  monitoring-demo-prometheus-operator-prometheus-operator.yaml
+monitoring-demo-prometheus-operator-kubernetes-storage.yaml                    monitoring-demo-prometheus-operator-prometheus.yaml
+```
+
+```
+$ kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
+```
+
+```bash
+$ kubectl -n monitoring get prometheusrules
+NAME                                          AGE
+demo-prometheus-operator-alertmanager.rules   8m53s
+```
+
+```bash
+$ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
+Name:         demo-prometheus-operator-alertmanager.rules
+Namespace:    monitoring
+Labels:       app=prometheus-operator
+              chart=prometheus-operator-8.12.1
+              heritage=Tiller
+              release=demo
+Annotations:  prometheus-operator-validated: true
+API Version:  monitoring.coreos.com/v1
+Kind:         PrometheusRule
+Metadata:
+  Creation Timestamp:  2020-03-11T18:06:25Z
+  Generation:          1
+  Resource Version:    4871
+  Self Link:           /apis/monitoring.coreos.com/v1/namespaces/monitoring/prometheusrules/demo-prometheus-operator-alertmanager.rules
+  UID:                 6a84dbb0-feba-4f17-b3dc-4b6486818bc0
+Spec:
+  Groups:
+    Name:  alertmanager.rules
+    Rules:
+      Alert:  AlertmanagerConfigInconsistent
+      Annotations:
+        Message:  The configuration of the instances of the Alertmanager cluster `{{$labels.service}}` are out of sync.
+      Expr:       count_values("config_hash", alertmanager_config_hash{job="demo-prometheus-operator-alertmanager",namespace="monitoring"}) BY (service) / ON(service) GROUP_LEFT() label_replace(max(prometheus_operator_spec_replicas{job="demo-prometheus-operator-operator",namespace="monitoring",controller="alertmanager"}) by (name, job, namespace, controller), "service", "$1", "name", "(.*)") != 1
+      For:        5m
+      Labels:
+        Severity:  critical
+      Alert:       AlertmanagerFailedReload
+      Annotations:
+        Message:  Reloading Alertmanager's configuration has failed for {{ $labels.namespace }}/{{ $labels.pod}}.
+      Expr:       alertmanager_config_last_reload_successful{job="demo-prometheus-operator-alertmanager",namespace="monitoring"} == 0
+      For:        10m
+      Labels:
+        Severity:  warning
+      Alert:       AlertmanagerMembersInconsistent
+      Annotations:
+        Message:  Alertmanager has not found all other members of the cluster.
+      Expr:       alertmanager_cluster_members{job="demo-prometheus-operator-alertmanager",namespace="monitoring"}
+  != on (service) GROUP_LEFT()
+count by (service) (alertmanager_cluster_members{job="demo-prometheus-operator-alertmanager",namespace="monitoring"})
+      For:  5m
+      Labels:
+        Severity:  critical
+Events:            <none>
+```
+
+```bash
+$ kubectl -n monitoring edit prometheusrules demo-prometheus-operator-alertmanager.rules
+prometheusrule.monitoring.coreos.com/demo-prometheus-operator-alertmanager.rules edited
+
+$ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
+Name:         demo-prometheus-operator-alertmanager.rules
+Namespace:    monitoring
+Labels:       app=prometheus-operator
+              chart=prometheus-operator-8.12.1
+              heritage=Tiller
+              release=demo
+Annotations:  prometheus-operator-validated: true
+API Version:  monitoring.coreos.com/v1
+Kind:         PrometheusRule
+Metadata:
+  Creation Timestamp:  2020-03-11T18:06:25Z
+  Generation:          2
+  Resource Version:    7239
+  Self Link:           /apis/monitoring.coreos.com/v1/namespaces/monitoring/prometheusrules/demo-prometheus-operator-alertmanager.rules
+  UID:                 6a84dbb0-feba-4f17-b3dc-4b6486818bc0
+Spec:
+  Groups:
+    Name:  alertmanager.rules
+    Rules:
+      Alert:  highCPU
+      Annotations:
+        Message:  Alertmanager has found a Pod with CPU too high
+      Expr:       rate (container_cpu_usage_seconds_total{pod_name=~"nginx-.*", image!="", container!="POD"}[5m])  > 0.04
+      For:        1m
+      Labels:
+        Severity:  critical
+Events:            <none>
+```
+
+
 
 cat alertmanager.yaml
 cat alertmanager-secret-k8s.yaml

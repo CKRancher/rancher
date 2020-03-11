@@ -45,26 +45,29 @@ To perform this demo you will need the following:
 - helm binary [installed](https://helm.sh/docs/intro/install/) on your working machine and tiller running inside Kubernetes cluster
 
 
-**Starting a Rancher 2.0 instance**
+**Starting a Rancher instance**
 
-To begin, start a Rancher 2.0 instance. There is a very intuitive getting started guide for this purpose [here](https://rancher.com/quick-start/).
-
+There is a very intuitive getting started guide for this purpose [here](https://rancher.com/quick-start/).
 
 **Using Rancher to deploy a GKE cluster**
 
 Use Rancher to set up and configure your Kubernetes cluster, follow the how-to [guide](https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/hosted-kubernetes-clusters/gke/).
 
-As soon as this operation is ready and you have configured the kubeconfig file with appropriate credentials and endpoint information you can make use of kubectl to point at that specific cluster.
+As soon as this operation is ready and you have configured the kubeconfig file with appropriate credentials and endpoint information you can make use of `kubectl` to point at that specific cluster.
 
 **Deploying Prometheus software**
 
 <details><summary>Configuring helm and tiller</summary>
+
+Let's check helm's version. From the output we can see beside the version that the server component (tiller) is not installed.
 
 ```bash
 $ helm version
 Client: &version.Version{SemVer:"v2.15.2", GitCommit:"8dce272473e5f2a7bf58ce79bb5c3691db54c96b", GitTreeState:"clean"}
 Error: could not find tiller
 ```
+
+Let's install `tiller` and run again the version command to see how the output changes now.
 
 ```
 $ helm init --wait
@@ -83,10 +86,7 @@ Client: &version.Version{SemVer:"v2.15.2", GitCommit:"8dce272473e5f2a7bf58ce79bb
 Server: &version.Version{SemVer:"v2.15.2", GitCommit:"8dce272473e5f2a7bf58ce79bb5c3691db54c96b", GitTreeState:"clean"}
 ```
 
-```bash
-helm list
-Error: configmaps is forbidden: User "system:serviceaccount:kube-system:default" cannot list resource "configmaps" in API group "" in the namespace "kube-system"
-```
+We need to create a service account for `tiller` and to take care of RBAC permissions. 
 
 ```bash
 $ kubectl --namespace kube-system create serviceaccount tiller
@@ -99,6 +99,8 @@ $ kubectl --namespace kube-system patch deploy tiller-deploy -p '{"spec":{"templ
 deployment.extensions/tiller-deploy patched
 ```
 </details></br>
+
+Having helm and tileer installed, let's proceed now with the installation of `prometheus-operator`.
 
 ```bash
 $ helm install --namespace monitoring --name demo stable/prometheus-operator
@@ -336,7 +338,5 @@ kubectl apply -f create_deploy.yml
 
 kubectl get pods
 kubectl exec -it nginx-deployment-5754944d6c-dj42p -- /bin/bash
+</details></br>
 
-
-
-![01](images/01-rancher-redis-cluster-architecture.png)

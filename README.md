@@ -339,19 +339,20 @@ In order to access Prometheus and AlertManager from a web browser we need to use
 As this demo uses a GCP instance, and all kubectl commands are run from this instance, we will be using the instance's external IP address in order to access the resources.
 
 ```bash
-kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
+kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
 ```
 
 ![02](images/02-rancher-prometheus-graphs-tab.png)
 
 ```bash
-kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
-```
+kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &```
 
 ![03](images/03-rancher-alertmanager-alerts-tab.png)
 
 
 The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well: 
+
+![04](images/04-rancher-prometheus-alerts-tab.png)
 
 ```bash
 $ kubectl -n monitoring get prometheusrules
@@ -600,7 +601,7 @@ NAME                                          AGE
 demo-prometheus-operator-alertmanager.rules   8m53s
 ```
 
-Let's check the rule from the CLI so we can compare with what we see in browser.
+Let's check the rule from the CLI so we can compare with what we qill see in browser.
 
 ```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
@@ -648,6 +649,8 @@ count by (service) (alertmanager_cluster_members{job="demo-prometheus-operator-a
         Severity:  critical
 Events:            <none>
 ```
+
+![05](05-rancher-prometheus-alerts-one-rulefile-left.png)
 
 We will remove all those three default alerts, and we will create one of our own:
 

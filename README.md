@@ -345,7 +345,8 @@ kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-
 ![02](images/02-rancher-prometheus-graphs-tab.png)
 
 ```bash
-kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &```
+kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
+```
 
 ![03](images/03-rancher-alertmanager-alerts-tab.png)
 

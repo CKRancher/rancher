@@ -579,7 +579,7 @@ Events:
 ```
 </details></br>
 
-Let's clean up a little bit the default rules, so we can observe better our own one. The command below deletes all rules, but leave only one standing, called monitoring-demo-prometheus-operator-alertmanager.rules.
+Let's clean up a little bit the default rules, so we can observe better our own one. The command below deletes all rules, but leaves only one standing, called monitoring-demo-prometheus-operator-alertmanager.rules.
 
 ```
 $ kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
@@ -591,7 +591,7 @@ NAME                                          AGE
 demo-prometheus-operator-alertmanager.rules   8m53s
 ```
 
-Let's check the rule from the CLI so we can compare with what we see in Prometheus UI.
+Let's check the rule from the CLI so we can compare with what we see in browser.
 
 ```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
@@ -680,7 +680,7 @@ Spec:
 Events:            <none>
 ```
 
-We're done with Prometheus alerts, let's configure now Alertmanager, so as soon as it gets this alert it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
+We're done with Prometheus alerts, let's configure now Alertmanager so as soon as it gets this alert it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
 
 ```bash
 $ kubectl get secrets -n monitoring
@@ -700,7 +700,7 @@ prometheus-demo-prometheus-operator-prometheus              Opaque              
 prometheus-demo-prometheus-operator-prometheus-tls-assets   Opaque                                0      31m
 ```
 
-We are interested only in `alertmanager-demo-prometheus-operator-alertmanager` secret because there lives Alertmanagers' settings. Let’s look at it:
+We are interested only in `alertmanager-demo-prometheus-operator-alertmanager`. Let’s look at it:
 
 ```bash
 kubectl -n monitoring get secret alertmanager-demo-prometheus-operator-alertmanager -o yaml
@@ -744,8 +744,7 @@ route:
     receiver: "null"
 ```
 
-This is the default Alertmanagers' configuration, we will change this with one which will notify us via email: 
-
+This is the default Alertmanagers' configuration, we will change this with one which will notify us sending an email: 
 
 ```bash
 $ cat alertmanager.yaml
@@ -784,7 +783,7 @@ We need first to encode this:
 $  cat alertmanager.yaml | base64 -w0
 ```
 
-Once we get the encoded output, we put it in the below yaml file which we will apply:
+Once we get the encoded output, we need to fill it in the below yaml file which we will apply:
 
 ```bash
 cat alertmanager-secret-k8s.yaml

@@ -767,10 +767,43 @@ Warning: kubectl apply should be used on resource created by either kubectl crea
 secret/alertmanager-demo-prometheus-operator-alertmanager configured
 ```
 
-cat create_deploy.yml
-kubectl apply -f create_deploy.yml
+```
+$ cat nginx-deployment.yaml
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 3 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+```
 
-kubectl get pods
-kubectl exec -it nginx-deployment-5754944d6c-dj42p -- /bin/bash
-</details></br>
+```bash
+$ kubectl apply -f nginx-deployment.yaml
+deployment.apps/nginx-deployment created
+```
 
+```bash
+$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-5754944d6c-7g6gq   1/1     Running   0          67s
+nginx-deployment-5754944d6c-lhvx8   1/1     Running   0          67s
+nginx-deployment-5754944d6c-whhtr   1/1     Running   0          67s
+```
+
+```bash
+$  kubectl exec -it nginx-deployment-5754944d6c-7g6gq -- /bin/sh
+# yes > /dev/null
+```

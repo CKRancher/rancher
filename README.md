@@ -100,7 +100,7 @@ deployment.extensions/tiller-deploy patched
 ```
 </details></br>
 
-Having helm and tiller configured we proceed with the installation of `prometheus-operator`.
+Having helm and tiller configured we can now proceed with the installation of `prometheus-operator`.
 
 ```bash
 $ helm install --namespace monitoring --name demo stable/prometheus-operator

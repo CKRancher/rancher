@@ -696,7 +696,7 @@ type: Opaque
 alertmanager.yaml field is encoded with base64, let’s see what’s inside:
 
 ```bash
-echo 'Z2xvYmFsOgogIHJlc29sdmVfdGltZW91dDogNW0KcmVjZWl2ZXJzOgotIG5hbWU6ICJudWxsIgpyb3V0ZToKICBncm91cF9ieToKICAtIGpvYgogIGdyb3VwX2ludGVydmFsOiA1bQogIGdyb3VwX3dhaXQ6IDMwcwogIHJlY2VpdmVyOiAibnVsbCIKICByZXBlYXRfaW50ZXJ2YWw6IDEyaAogIHJvdXRlczoKICAtIG1hdGNoOgogICAgICBhbGVydG5hbWU6IFdhdGNoZG9nCiAgICByZWNlaXZlcjogIm51bGwiCg==' | base64 --decode
+$ echo 'Z2xvYmFsOgogIHJlc29sdmVfdGltZW91dDogNW0KcmVjZWl2ZXJzOgotIG5hbWU6ICJudWxsIgpyb3V0ZToKICBncm91cF9ieToKICAtIGpvYgogIGdyb3VwX2ludGVydmFsOiA1bQogIGdyb3VwX3dhaXQ6IDMwcwogIHJlY2VpdmVyOiAibnVsbCIKICByZXBlYXRfaW50ZXJ2YWw6IDEyaAogIHJvdXRlczoKICAtIG1hdGNoOgogICAgICBhbGVydG5hbWU6IFdhdGNoZG9nCiAgICByZWNlaXZlcjogIm51bGwiCg==' | base64 --decode
 global:
   resolve_timeout: 5m
 receivers:
@@ -714,9 +714,58 @@ route:
     receiver: "null"
 ```
 
-cat alertmanager.yaml
+```bash
+$ cat alertmanager.yaml
+global:
+  resolve_timeout: 5m
+route:
+  group_by: [Alertname]
+  # Send all notifications to me.
+  receiver: demo-alert
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+  routes:
+  - match:
+      alertname: DeadMansSwitch
+    receiver: 'demo-alert'
+
+receivers:
+- name: demo-alert
+  email_configs:
+  - to: your_email@gmail.com
+    from: from_email@gmail.com
+    # Your smtp server address
+    smarthost: smtp.gmail.com:587
+    auth_username: from_email@gmail.com
+    auth_identity: from_email@gmail.com
+    auth_password: 16letter_generated token # you can use gmail account password, but better create a dedicated token for this
+    headers:
+      From: rustudorcalin@gmail.com
+      Subject: 'Demo ALERT'
+```
+
+```bash
+$  cat alertmanager.yaml | base64 -w0
+```
+
+```bash
 cat alertmanager-secret-k8s.yaml
-sed "s/ALERTMANAGER_CONFIG/$(cat alertmanager.yaml | base64 -w0)/g" alertmanager-secret-k8s.yaml | kubectl apply -f -
+apiVersion: v1
+data:
+  alertmanager.yaml: <paste here de encoded content of alertmanager.yaml>
+kind: Secret
+metadata:
+  name: alertmanager-demo-prometheus-operator-alertmanager
+  namespace: monitoring
+type: Opaque
+```
+
+```bash
+$ kubectl apply -f alertmanager-secret-k8s.yaml
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
+secret/alertmanager-demo-prometheus-operator-alertmanager configured
+```
 
 cat create_deploy.yml
 kubectl apply -f create_deploy.yml

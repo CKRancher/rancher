@@ -334,13 +334,19 @@ demo-prometheus-operator-operator-b9c9b5457-db9dj      2/2     Running   0      
 prometheus-demo-prometheus-operator-prometheus-0       3/3     Running   1          50s
 ```
 
-In order to access Prometheus and AlertManager from a web browser we need to use port forwarding:
+In order to access Prometheus and AlertManager from a web browser we need to use port forwarding.
 
 ```bash
 kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
 
 kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
 ```
+
+As this demo uses a GCP instance, and all kubectl commands are run from this instance, we will be using the instance's external IP address in order to access the resources.
+
+![02](images/02-rancher-prometheus-alerts-tab.png)
+![03](images/03-rancher-alertmanager-alerts-tab.png)
+
 
 The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well: 
 

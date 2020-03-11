@@ -621,7 +621,9 @@ Events:            <none>
 ```bash
 $ kubectl -n monitoring edit prometheusrules demo-prometheus-operator-alertmanager.rules
 prometheusrule.monitoring.coreos.com/demo-prometheus-operator-alertmanager.rules edited
+```
 
+```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
 Name:         demo-prometheus-operator-alertmanager.rules
 Namespace:    monitoring
@@ -634,17 +636,17 @@ API Version:  monitoring.coreos.com/v1
 Kind:         PrometheusRule
 Metadata:
   Creation Timestamp:  2020-03-11T18:06:25Z
-  Generation:          2
-  Resource Version:    7239
+  Generation:          3
+  Resource Version:    18180
   Self Link:           /apis/monitoring.coreos.com/v1/namespaces/monitoring/prometheusrules/demo-prometheus-operator-alertmanager.rules
   UID:                 6a84dbb0-feba-4f17-b3dc-4b6486818bc0
 Spec:
   Groups:
     Name:  alertmanager.rules
     Rules:
-      Alert:  highCPU
+      Alert:  PodHighCpuLoad
       Annotations:
-        Message:  Alertmanager has found a Pod with CPU too high
+        Message:  Alertmanager has found {{ $labels.instance }} with CPU too high
       Expr:       rate (container_cpu_usage_seconds_total{pod_name=~"nginx-.*", image!="", container!="POD"}[5m])  > 0.04
       For:        1m
       Labels:

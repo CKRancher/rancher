@@ -402,6 +402,7 @@ $ kubectl -n monitoring describe pod prometheus-demo-prometheus-operator-prometh
 ```
 
 <details><summary>Click for full command output</summary>
+
 ```bash
 Name:           prometheus-demo-prometheus-operator-prometheus-0
 Namespace:      monitoring

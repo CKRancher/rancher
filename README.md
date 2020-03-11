@@ -650,7 +650,7 @@ count by (service) (alertmanager_cluster_members{job="demo-prometheus-operator-a
 Events:            <none>
 ```
 
-![05](05-rancher-prometheus-alerts-one-rulefile-left.png)
+![05](images/05-rancher-prometheus-alerts-one-rulefile-left.png)
 
 We will remove all those three default alerts, and we will create one of our own:
 

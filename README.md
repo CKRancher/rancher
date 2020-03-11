@@ -786,7 +786,7 @@ receivers:
     auth_identity: from_email@gmail.com
     auth_password: 16letter_generated token # you can use gmail account password, but better create a dedicated token for this
     headers:
-      From: rustudorcalin@gmail.com
+      From: from_email@gmail.com
       Subject: 'Demo ALERT'
 ```
 

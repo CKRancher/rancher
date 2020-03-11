@@ -652,7 +652,67 @@ Spec:
 Events:            <none>
 ```
 
+```bash
+$ kubectl get secrets -n monitoring
+NAME                                                        TYPE                                  DATA   AGE
+alertmanager-demo-prometheus-operator-alertmanager          Opaque                                1      32m
+default-token-x4rgq                                         kubernetes.io/service-account-token   3      37m
+demo-grafana                                                Opaque                                3      32m
+demo-grafana-test-token-p6qnk                               kubernetes.io/service-account-token   3      32m
+demo-grafana-token-ff6nl                                    kubernetes.io/service-account-token   3      32m
+demo-kube-state-metrics-token-vmvbr                         kubernetes.io/service-account-token   3      32m
+demo-prometheus-node-exporter-token-wlnk9                   kubernetes.io/service-account-token   3      32m
+demo-prometheus-operator-admission                          Opaque                                3      32m
+demo-prometheus-operator-alertmanager-token-rrx4k           kubernetes.io/service-account-token   3      32m
+demo-prometheus-operator-operator-token-q9744               kubernetes.io/service-account-token   3      32m
+demo-prometheus-operator-prometheus-token-jvbrr             kubernetes.io/service-account-token   3      32m
+prometheus-demo-prometheus-operator-prometheus              Opaque                                1      31m
+prometheus-demo-prometheus-operator-prometheus-tls-assets   Opaque                                0      31m
+```
 
+We are interested only in `alertmanager-demo-prometheus-operator-alertmanager` secret because there lives Alertmanager settings. Let’s look at it:
+
+```bash
+kubectl -n monitoring get secret alertmanager-demo-prometheus-operator-alertmanager -o yaml
+apiVersion: v1
+data:
+  alertmanager.yaml: Z2xvYmFsOgogIHJlc29sdmVfdGltZW91dDogNW0KcmVjZWl2ZXJzOgotIG5hbWU6ICJudWxsIgpyb3V0ZToKICBncm91cF9ieToKICAtIGpvYgogIGdyb3VwX2ludGVydmFsOiA1bQogIGdyb3VwX3dhaXQ6IDMwcwogIHJlY2VpdmVyOiAibnVsbCIKICByZXBlYXRfaW50ZXJ2YWw6IDEyaAogIHJvdXRlczoKICAtIG1hdGNoOgogICAgICBhbGVydG5hbWU6IFdhdGNoZG9nCiAgICByZWNlaXZlcjogIm51bGwiCg==
+kind: Secret
+metadata:
+  creationTimestamp: "2020-03-11T18:06:24Z"
+  labels:
+    app: prometheus-operator-alertmanager
+    chart: prometheus-operator-8.12.1
+    heritage: Tiller
+    release: demo
+  name: alertmanager-demo-prometheus-operator-alertmanager
+  namespace: monitoring
+  resourceVersion: "3018"
+  selfLink: /api/v1/namespaces/monitoring/secrets/alertmanager-demo-prometheus-operator-alertmanager
+  uid: 6baf6883-f690-47a1-bb49-491935956c22
+type: Opaque
+```
+
+alertmanager.yaml field is encoded with base64, let’s see what’s inside:
+
+```bash
+echo 'Z2xvYmFsOgogIHJlc29sdmVfdGltZW91dDogNW0KcmVjZWl2ZXJzOgotIG5hbWU6ICJudWxsIgpyb3V0ZToKICBncm91cF9ieToKICAtIGpvYgogIGdyb3VwX2ludGVydmFsOiA1bQogIGdyb3VwX3dhaXQ6IDMwcwogIHJlY2VpdmVyOiAibnVsbCIKICByZXBlYXRfaW50ZXJ2YWw6IDEyaAogIHJvdXRlczoKICAtIG1hdGNoOgogICAgICBhbGVydG5hbWU6IFdhdGNoZG9nCiAgICByZWNlaXZlcjogIm51bGwiCg==' | base64 --decode
+global:
+  resolve_timeout: 5m
+receivers:
+- name: "null"
+route:
+  group_by:
+  - job
+  group_interval: 5m
+  group_wait: 30s
+  receiver: "null"
+  repeat_interval: 12h
+  routes:
+  - match:
+      alertname: Watchdog
+    receiver: "null"
+```
 
 cat alertmanager.yaml
 cat alertmanager-secret-k8s.yaml

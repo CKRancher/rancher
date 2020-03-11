@@ -319,6 +319,8 @@ to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
 </details></br>
 
+After deploying it creates the following pods:
+
 ```bash
 $ kubectl -n monitoring get pods
 NAME                                                   READY   STATUS    RESTARTS   AGE
@@ -332,11 +334,15 @@ demo-prometheus-operator-operator-b9c9b5457-db9dj      2/2     Running   0      
 prometheus-demo-prometheus-operator-prometheus-0       3/3     Running   1          50s
 ```
 
+In order to access Prometheus and AlertManager from a web browser we need to use port forwarding:
+
 ```bash
 kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
 
 kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
 ```
+
+The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well: 
 
 ```bash
 $ kubectl -n monitoring get prometheusrules
@@ -367,8 +373,36 @@ demo-prometheus-operator-prometheus                             3m21s
 demo-prometheus-operator-prometheus-operator                    3m21s
 ```
 
+We can check the physical files as well, located in prometheus container.
+
+```bash
+$ kubectl -n monitoring exec -it prometheus-demo-prometheus-operator-prometheus-0 -- /bin/sh
+Defaulting container name to prometheus.
+Use 'kubectl describe pod/prometheus-demo-prometheus-operator-prometheus-0 -n monitoring' to see all of the containers in this pod.
+
+/prometheus $ ls /etc/prometheus/rules/prometheus-demo-prometheus-operator-prometheus-rulefiles-0/
+monitoring-demo-prometheus-operator-alertmanager.rules.yaml                    monitoring-demo-prometheus-operator-kubernetes-system-apiserver.yaml
+monitoring-demo-prometheus-operator-etcd.yaml                                  monitoring-demo-prometheus-operator-kubernetes-system-controller-manager.yaml
+monitoring-demo-prometheus-operator-general.rules.yaml                         monitoring-demo-prometheus-operator-kubernetes-system-kubelet.yaml
+monitoring-demo-prometheus-operator-k8s.rules.yaml                             monitoring-demo-prometheus-operator-kubernetes-system-scheduler.yaml
+monitoring-demo-prometheus-operator-kube-apiserver-error.yaml                  monitoring-demo-prometheus-operator-kubernetes-system.yaml
+monitoring-demo-prometheus-operator-kube-apiserver.rules.yaml                  monitoring-demo-prometheus-operator-node-exporter.rules.yaml
+monitoring-demo-prometheus-operator-kube-prometheus-node-recording.rules.yaml  monitoring-demo-prometheus-operator-node-exporter.yaml
+monitoring-demo-prometheus-operator-kube-scheduler.rules.yaml                  monitoring-demo-prometheus-operator-node-network.yaml
+monitoring-demo-prometheus-operator-kubernetes-absent.yaml                     monitoring-demo-prometheus-operator-node-time.yaml
+monitoring-demo-prometheus-operator-kubernetes-apps.yaml                       monitoring-demo-prometheus-operator-node.rules.yaml
+monitoring-demo-prometheus-operator-kubernetes-resources.yaml                  monitoring-demo-prometheus-operator-prometheus-operator.yaml
+monitoring-demo-prometheus-operator-kubernetes-storage.yaml                    monitoring-demo-prometheus-operator-prometheus.yaml
+```
+
+If the command doesn't work for you make sure the container has the same name as above, you can double check this. In the output below you can see the two names for the containers inside prometheus-operator Pod: prometheus and prometheus-config-reloader.
+
 ```bash
 $ kubectl -n monitoring describe pod prometheus-demo-prometheus-operator-prometheus-0
+```
+
+<details><summary>Click for full command output</summary>
+```bash
 Name:           prometheus-demo-prometheus-operator-prometheus-0
 Namespace:      monitoring
 Priority:       0
@@ -542,24 +576,9 @@ Events:
   Normal  Pulled     4m32s                  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Container image "quay.io/prometheus/prometheus:v2.15.2" already present on machine
   Normal  Started    4m31s (x2 over 4m36s)  kubelet, gke-c-7dkls-default-0-c6ca178a-gmcq  Started container prometheus
 ```
+</details></br>
 
-```bash
-$ kubectl -n monitoring exec -it prometheus-demo-prometheus-operator-prometheus-0 -- /bin/sh
-
-/prometheus $ ls /etc/prometheus/rules/prometheus-demo-prometheus-operator-prometheus-rulefiles-0/
-monitoring-demo-prometheus-operator-alertmanager.rules.yaml                    monitoring-demo-prometheus-operator-kubernetes-system-apiserver.yaml
-monitoring-demo-prometheus-operator-etcd.yaml                                  monitoring-demo-prometheus-operator-kubernetes-system-controller-manager.yaml
-monitoring-demo-prometheus-operator-general.rules.yaml                         monitoring-demo-prometheus-operator-kubernetes-system-kubelet.yaml
-monitoring-demo-prometheus-operator-k8s.rules.yaml                             monitoring-demo-prometheus-operator-kubernetes-system-scheduler.yaml
-monitoring-demo-prometheus-operator-kube-apiserver-error.yaml                  monitoring-demo-prometheus-operator-kubernetes-system.yaml
-monitoring-demo-prometheus-operator-kube-apiserver.rules.yaml                  monitoring-demo-prometheus-operator-node-exporter.rules.yaml
-monitoring-demo-prometheus-operator-kube-prometheus-node-recording.rules.yaml  monitoring-demo-prometheus-operator-node-exporter.yaml
-monitoring-demo-prometheus-operator-kube-scheduler.rules.yaml                  monitoring-demo-prometheus-operator-node-network.yaml
-monitoring-demo-prometheus-operator-kubernetes-absent.yaml                     monitoring-demo-prometheus-operator-node-time.yaml
-monitoring-demo-prometheus-operator-kubernetes-apps.yaml                       monitoring-demo-prometheus-operator-node.rules.yaml
-monitoring-demo-prometheus-operator-kubernetes-resources.yaml                  monitoring-demo-prometheus-operator-prometheus-operator.yaml
-monitoring-demo-prometheus-operator-kubernetes-storage.yaml                    monitoring-demo-prometheus-operator-prometheus.yaml
-```
+Let's clean up a little bit the default rules, so we can observe better our own one. The command below deletes all rules, but leave only one standing, called monitoring-demo-prometheus-operator-alertmanager.rules.
 
 ```
 $ kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
@@ -570,6 +589,8 @@ $ kubectl -n monitoring get prometheusrules
 NAME                                          AGE
 demo-prometheus-operator-alertmanager.rules   8m53s
 ```
+
+Let's check the rule from the CLI so we can compare with what we see in Prometheus UI.
 
 ```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
@@ -618,10 +639,14 @@ count by (service) (alertmanager_cluster_members{job="demo-prometheus-operator-a
 Events:            <none>
 ```
 
+We will remove all those three default alerts, and we will create one of our own:
+
 ```bash
 $ kubectl -n monitoring edit prometheusrules demo-prometheus-operator-alertmanager.rules
 prometheusrule.monitoring.coreos.com/demo-prometheus-operator-alertmanager.rules edited
 ```
+
+The own custom alert looks like this:
 
 ```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
@@ -654,6 +679,8 @@ Spec:
 Events:            <none>
 ```
 
+We're done with Prometheus alerts, let's configure now Alertmanager, so as soon as it gets this alert it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
+
 ```bash
 $ kubectl get secrets -n monitoring
 NAME                                                        TYPE                                  DATA   AGE
@@ -672,7 +699,7 @@ prometheus-demo-prometheus-operator-prometheus              Opaque              
 prometheus-demo-prometheus-operator-prometheus-tls-assets   Opaque                                0      31m
 ```
 
-We are interested only in `alertmanager-demo-prometheus-operator-alertmanager` secret because there lives Alertmanager settings. Let’s look at it:
+We are interested only in `alertmanager-demo-prometheus-operator-alertmanager` secret because there lives Alertmanagers' settings. Let’s look at it:
 
 ```bash
 kubectl -n monitoring get secret alertmanager-demo-prometheus-operator-alertmanager -o yaml
@@ -716,6 +743,9 @@ route:
     receiver: "null"
 ```
 
+This is the default Alertmanagers' configuration, we will change this with one which will notify us via email: 
+
+
 ```bash
 $ cat alertmanager.yaml
 global:
@@ -747,9 +777,13 @@ receivers:
       Subject: 'Demo ALERT'
 ```
 
+We need first to encode this:
+
 ```bash
 $  cat alertmanager.yaml | base64 -w0
 ```
+
+Once we get the encoded output, we put it in the below yaml file which we will apply:
 
 ```bash
 cat alertmanager-secret-k8s.yaml
@@ -768,6 +802,10 @@ $ kubectl apply -f alertmanager-secret-k8s.yaml
 Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply
 secret/alertmanager-demo-prometheus-operator-alertmanager configured
 ```
+
+The configuration is automatically reloaded, the changes are present in UI as well.
+
+Let's deploy something to monitor. A simple nginx deployment should be enough for this exercise:
 
 ```
 $ cat nginx-deployment.yaml
@@ -797,6 +835,8 @@ $ kubectl apply -f nginx-deployment.yaml
 deployment.apps/nginx-deployment created
 ```
 
+We have three replicas, sa per our configuration yaml:
+
 ```bash
 $ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
@@ -804,6 +844,8 @@ nginx-deployment-5754944d6c-7g6gq   1/1     Running   0          67s
 nginx-deployment-5754944d6c-lhvx8   1/1     Running   0          67s
 nginx-deployment-5754944d6c-whhtr   1/1     Running   0          67s
 ```
+
+Let's make some load on the first running Pod:
 
 ```bash
 $  kubectl exec -it nginx-deployment-5754944d6c-7g6gq -- /bin/sh

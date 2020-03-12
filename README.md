@@ -699,8 +699,11 @@ Spec:
 Events:            <none>
 ```
 
+![06](images/06-rancher-prometheus-one-alerts.png)
+
+
 Quickly going through the options of the alert we created:
-- annotation: set of informational labels describing the alert
+- annotations: set of informational labels describing the alert
 - expr: expression written in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/)
 - for: optional parameter, if set will tell Prometheus to check that the alert continues to be active during the defined period. The alert will be fired only after this duration.
 - labels: additional labels that can be attached to the alert
@@ -770,7 +773,7 @@ route:
     receiver: "null"
 ```
 
-As we can observe, this is the default Alertmanagers' configuration, we will change this with one which will actually do something, in our scenario sending emails:
+As we can observe, this is the default Alertmanagers' configuration. This configuration be seen as well in Status tab from Alertmanager UI. We will change it with one which will actually do something, in our case send emails:
 
 ```bash
 $ cat alertmanager.yaml
@@ -830,6 +833,8 @@ secret/alertmanager-demo-prometheus-operator-alertmanager configured
 ```
 
 The configuration is automatically reloaded, the changes are present in UI as well.
+
+![07](images/07-rancher-alertmanager-status-tab.png)
 
 Let's deploy something to monitor. A simple nginx deployment should be enough for this exercise:
 

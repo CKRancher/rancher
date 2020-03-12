@@ -322,7 +322,7 @@ to create & configure Alertmanager and Prometheus instances using the Operator.
 
 Besides monitoring, Prometheus allows us to have rules which should trigger alerts. These rules are based on Prometheus expression language expressions. Whenever a condition is met, the alert is fired and it's sent to Alertmanager. We will see later on how a rule looks like.
 
-Let's get back to our demo. As soon as helm has finished the deployment we can check what pods have been created:
+Going back to our demo. As soon as helm has finished the deployment we can check what pods have been created:
 
 ```bash
 $ kubectl -n monitoring get pods
@@ -773,7 +773,7 @@ route:
     receiver: "null"
 ```
 
-As we can observe, this is the default Alertmanagers' configuration. This configuration be seen as well in Status tab from Alertmanager UI. We will change it with one which will actually do something, in our case send emails:
+As we can observe, this is the default Alertmanagers' configuration. This configuration can be seen as well in Status tab from Alertmanager UI. We will change it with one which will actually do something, in our case send emails:
 
 ```bash
 $ cat alertmanager.yaml
@@ -876,7 +876,7 @@ nginx-deployment-5754944d6c-lhvx8   1/1     Running   0          67s
 nginx-deployment-5754944d6c-whhtr   1/1     Running   0          67s
 ```
 
-Let's go in Prometheus UI and using same expression we configured for the alert, let's check the data for these Pods. The value for all the Pods should be 0.
+In Prometheus UI using same expression we configured for the alert, we can check the data for these Pods. The value for all the Pods should be 0.
 
 ![08](images/08-rancher-prometheus-monitor-deployment.png)
 

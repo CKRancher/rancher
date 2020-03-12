@@ -888,10 +888,13 @@ $  kubectl exec -it nginx-deployment-5754944d6c-7g6gq -- /bin/sh
 ```
 
 The alert has three phases: Inactive - when condition is not met, Pending - condition is met, Firing - alert is fired.
-We already saw the alert in inactive state, so creating some load on the CPU, we will observe the rest of the:
+We already saw the alert in inactive state, so creating some load on the CPU, we will observe the rest too:
 
 ![09](images/09-rancher-prometheus-pending-alert.png)
 
 ![10](images/10-rancher-prometheus-firing-alert.png)
 
+As soon as the alert is fired, this will be present in Alertmanager.
+
+![11](image/11-rancher-alertmanager-alert-received.png)
 

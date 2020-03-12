@@ -28,11 +28,11 @@ From all these, worths mentionining once more few terms we already used or are r
 
 In few words, as described by CoreOS - owners of the project, Prometheus Operator makes the Prometheus configuration Kubernetes native and manages and operates Prometheus and Alertmanager clusters.
 
-The Operator introduces the following Kubernetes custom resource definitions (CRDs): Prometheus, ServiceMonitor, PrometheusRule, Alertmanager. More details about these can be found [here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/design.md). In our demo we will be using `PrometheusRule` to define some custome rules.
+The Operator introduces the following Kubernetes custom resource definitions ([CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)): Prometheus, ServiceMonitor, PrometheusRule, Alertmanager. More details about these can be found [here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/design.md). In our demo we will be using `PrometheusRule` to define some custome rules.
 
-To install it, we will use the [stable/prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart.
+To install, we will use the [stable/prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart.
 
-The default installation deploys the followings components: prometheus-operator, prometheus, alertmanager, node-exporter, kube-state-metrics and grafana. By default, Prometheus  will scrape the main Kubernetes components: kube-apiserver, kube-scheduler, kube-controller-manager, etcd.
+The default installation deploys the followings components: prometheus-operator, prometheus, alertmanager, node-exporter, kube-state-metrics and grafana. By default, Prometheus will scrape the main Kubernetes components: kube-apiserver, kube-scheduler, kube-controller-manager, etcd.
 
 ## Installing Prometheus software
 
@@ -42,8 +42,7 @@ To perform this demo you will need the following:
 - a Google Cloud Platform account, the free tier provided is more than enough (any other cloud should work the same)
 - [Rancher](https://rancher.com) v2.3.5 (latest while writing the article)
 - Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12 (running EKS or AKS should be the same)
-- helm binary [installed](https://helm.sh/docs/intro/install/) on your working machine and tiller running inside Kubernetes cluster
-
+- helm binary [installed](https://helm.sh/docs/intro/install/) on a working machine and tiller running inside Kubernetes cluster
 
 **Starting a Rancher instance**
 
@@ -59,7 +58,7 @@ As soon as this operation is ready and you have configured the kubeconfig file w
 
 <details><summary>Configuring helm and tiller</summary>
 
-Let's check helm's version. From the output we can see beside the version that the server component (tiller) is not installed.
+Let's check helm's version. From the output we can see beside the version that the server side component (tiller) is not installed.
 
 ```bash
 $ helm version
@@ -319,7 +318,7 @@ to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
 </details></br>
 
-After deploying it creates the following pods:
+When deployment is finished we can check what pods have been created:
 
 ```bash
 $ kubectl -n monitoring get pods
@@ -344,9 +343,11 @@ kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-
 
 ![02](images/02-rancher-prometheus-graphs-tab.png)
 
+
 ```bash
 kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
 ```
+
 
 ![03](images/03-rancher-alertmanager-alerts-tab.png)
 

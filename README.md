@@ -898,3 +898,6 @@ As soon as the alert is fired, this will be present in Alertmanager.
 
 ![11](images/11-rancher-alertmanager-alert-received.png)
 
+Alertmanager is configured to send emails when alerts are received, so checking the inbox we can see something like this:
+
+![12](images/12-rancher-mail.png)

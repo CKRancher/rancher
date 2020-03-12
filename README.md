@@ -876,6 +876,11 @@ nginx-deployment-5754944d6c-lhvx8   1/1     Running   0          67s
 nginx-deployment-5754944d6c-whhtr   1/1     Running   0          67s
 ```
 
+Let's go in Prometheus UI and using the expression we configured for the alert, let's check the data for these Pods:
+
+![08](images/08-rancher-prometheus-monitor-deployment.png)
+
+
 Let's make some load on the first running Pod:
 
 ```bash

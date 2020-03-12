@@ -318,7 +318,11 @@ to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
 </details></br>
 
-When deployment is finished we can check what pods have been created:
+## Prometheus alerting rules
+
+Besides monitoring, Prometheus allows us to have rules which should trigger alerts. These rules are based on Prometheus expression language expressions. Whenever a condition is met, the alert is fired and it's sent to Alertmanager. We will see later on how a rule looks like.
+
+Let's get back to our demo. As soon as helm has finished the deployment we can check what pods have been created:
 
 ```bash
 $ kubectl -n monitoring get pods
@@ -343,14 +347,11 @@ $ kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheu
 
 ![02](images/02-rancher-prometheus-graphs-tab.png)
 
-
 ```bash
 $ kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
 ```
 
-
 ![03](images/03-rancher-alertmanager-alerts-tab.png)
-
 
 The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well by querying the CRD called `prometheusrules`: 
 
@@ -391,7 +392,11 @@ We can check the physical files as well, located in prometheus-operator Pod, in 
 $ kubectl -n monitoring exec -it prometheus-demo-prometheus-operator-prometheus-0 -- /bin/sh
 Defaulting container name to prometheus.
 Use 'kubectl describe pod/prometheus-demo-prometheus-operator-prometheus-0 -n monitoring' to see all of the containers in this pod.
+```
 
+Inside the container, we can check the path where rules are stored:
+
+```bash
 /prometheus $ ls /etc/prometheus/rules/prometheus-demo-prometheus-operator-prometheus-rulefiles-0/
 monitoring-demo-prometheus-operator-alertmanager.rules.yaml                    monitoring-demo-prometheus-operator-kubernetes-system-apiserver.yaml
 monitoring-demo-prometheus-operator-etcd.yaml                                  monitoring-demo-prometheus-operator-kubernetes-system-controller-manager.yaml
@@ -591,7 +596,7 @@ Events:
 ```
 </details></br>
 
-Let's clean up a little bit the default rules, so we can observe better our own one. The command below deletes all rules, but leaves only one standing, the first one, called monitoring-demo-prometheus-operator-alertmanager.rules.
+Let's clean up a little bit the default rules, so we can observe better our own one whici we will create. The command below deletes all rules, but leaves only one standing, the first one, called monitoring-demo-prometheus-operator-alertmanager.rules.
 
 ```
 $ kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
@@ -694,7 +699,14 @@ Spec:
 Events:            <none>
 ```
 
-We're done with Prometheus alerts, let's configure now Alertmanager so as soon as it gets the alert we configured it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
+Quickly going through the options of the alert we created:
+- annotation: set of informational labels describing the alert
+- expr: expression written in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/)
+- for: optional parameter, if set will tell Prometheus to check that the alert continues to be active during the defined period. The alert will be fired only after this duration.
+- labels: additional labels that can be attached to the alert
+More information about alerts can be found [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
+
+As we're done with Prometheus alerts, let's configure now Alertmanager so as soon as it gets the alert we configured it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
 
 ```bash
 $ kubectl get secrets -n monitoring

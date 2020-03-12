@@ -338,21 +338,21 @@ In order to access Prometheus and AlertManager from a web browser we need to use
 As this demo uses a GCP instance, and all kubectl commands are run from this instance, we will be using the instance's external IP address in order to access the resources.
 
 ```bash
-kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
+$ kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
 ```
 
 ![02](images/02-rancher-prometheus-graphs-tab.png)
 
 
 ```bash
-kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
+$ kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometheus-operator-alertmanager-0 9093  >/dev/null 2>&1 &
 ```
 
 
 ![03](images/03-rancher-alertmanager-alerts-tab.png)
 
 
-The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well: 
+The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well be querying the CRD called `prometheusrules`: 
 
 ![04](images/04-rancher-prometheus-alerts-tab.png)
 
@@ -385,7 +385,7 @@ demo-prometheus-operator-prometheus                             3m21s
 demo-prometheus-operator-prometheus-operator                    3m21s
 ```
 
-We can check the physical files as well, located in prometheus container.
+We can check the physical files as well, located in prometheus-operator Pod, in prometheus container.
 
 ```bash
 $ kubectl -n monitoring exec -it prometheus-demo-prometheus-operator-prometheus-0 -- /bin/sh
@@ -407,7 +407,7 @@ monitoring-demo-prometheus-operator-kubernetes-resources.yaml                  m
 monitoring-demo-prometheus-operator-kubernetes-storage.yaml                    monitoring-demo-prometheus-operator-prometheus.yaml
 ```
 
-If the command doesn't work for you make sure the container has the same name as above, you can double check this. In the output below you can see the two names for the containers inside prometheus-operator Pod: prometheus and prometheus-config-reloader.
+To understand more on how these rules are loaded into Prometheus we should check the Pods' details. We can see for prometheus container the config file which is used `etc/prometheus/config_out/prometheus.env.yaml`. Checking further this config will show us the location of the files or the frequency set for yaml files to be rechecked.
 
 ```bash
 $ kubectl -n monitoring describe pod prometheus-demo-prometheus-operator-prometheus-0
@@ -591,7 +591,7 @@ Events:
 ```
 </details></br>
 
-Let's clean up a little bit the default rules, so we can observe better our own one. The command below deletes all rules, but leaves only one standing, called monitoring-demo-prometheus-operator-alertmanager.rules.
+Let's clean up a little bit the default rules, so we can observe better our own one. The command below deletes all rules, but leaves only one standing, the first one, called monitoring-demo-prometheus-operator-alertmanager.rules.
 
 ```
 $ kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)
@@ -603,7 +603,7 @@ NAME                                          AGE
 demo-prometheus-operator-alertmanager.rules   8m53s
 ```
 
-Let's check the rule from the CLI so we can compare with what we qill see in browser.
+Let's check the rule from the CLI so we can compare with what we will see in browser.
 
 ```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
@@ -694,7 +694,7 @@ Spec:
 Events:            <none>
 ```
 
-We're done with Prometheus alerts, let's configure now Alertmanager so as soon as it gets this alert it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
+We're done with Prometheus alerts, let's configure now Alertmanager so as soon as it gets the alert we configured it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
 
 ```bash
 $ kubectl get secrets -n monitoring
@@ -758,7 +758,7 @@ route:
     receiver: "null"
 ```
 
-This is the default Alertmanagers' configuration, we will change this with one which will notify us sending an email: 
+As we can observe, this is the default Alertmanagers' configuration, we will change this with one which will actually do something, in our scenario sending emails:
 
 ```bash
 $ cat alertmanager.yaml
@@ -773,7 +773,7 @@ route:
   repeat_interval: 12h
   routes:
   - match:
-      alertname: DeadMansSwitch
+      alertname: DemoAlertName
     receiver: 'demo-alert'
 
 receivers:
@@ -849,7 +849,7 @@ $ kubectl apply -f nginx-deployment.yaml
 deployment.apps/nginx-deployment created
 ```
 
-We have three replicas, sa per our configuration yaml:
+We have three replicas, as per our configuration yaml:
 
 ```bash
 $ kubectl get pods

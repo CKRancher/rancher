@@ -876,14 +876,22 @@ nginx-deployment-5754944d6c-lhvx8   1/1     Running   0          67s
 nginx-deployment-5754944d6c-whhtr   1/1     Running   0          67s
 ```
 
-Let's go in Prometheus UI and using the expression we configured for the alert, let's check the data for these Pods:
+Let's go in Prometheus UI and using same expression we configured for the alert, let's check the data for these Pods. The value for all the Pods should be 0.
 
 ![08](images/08-rancher-prometheus-monitor-deployment.png)
 
-
-Let's make some load on the first running Pod:
+Let's make some load on the first running Pod, to see the value changing. When this will be greater than 0.04 we should have an alert too:
 
 ```bash
 $  kubectl exec -it nginx-deployment-5754944d6c-7g6gq -- /bin/sh
 # yes > /dev/null
 ```
+
+The alert has three phases: Inactive - when condition is not met, Pending - condition is met, Firing - alert is fired.
+We already saw the alert in inactive state, so creating some load on the CPU, we will observe the rest of the:
+
+![09](image/09-rancher-prometheus-pending-alert.png)
+
+![10](image/10-rancher-prometheus-pending-firing.png)
+
+

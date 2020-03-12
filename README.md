@@ -352,7 +352,7 @@ $ kubectl port-forward --address 0.0.0.0 -n monitoring alertmanager-demo-prometh
 ![03](images/03-rancher-alertmanager-alerts-tab.png)
 
 
-The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well be querying the CRD called `prometheusrules`: 
+The Alerts tab from Prometheus UI shows us all the currently running/configured alerts. This can be checked from CLI as well by querying the CRD called `prometheusrules`: 
 
 ![04](images/04-rancher-prometheus-alerts-tab.png)
 

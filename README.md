@@ -596,7 +596,7 @@ Events:
 ```
 </details></br>
 
-Let's clean up a little bit the default rules, so we can observe better our own one whici we will create. The command below deletes all rules, but leaves only one standing, the first one, called monitoring-demo-prometheus-operator-alertmanager.rules.
+Let's clean up the default rules, so we can observe better our own one which we will create. The command below deletes all rules, but leaves only one standing, the first one, called monitoring-demo-prometheus-operator-alertmanager.rules.
 
 ```
 $ kubectl -n monitoring delete prometheusrules $(kubectl -n monitoring get prometheusrules | grep -v alert)

@@ -892,6 +892,6 @@ We already saw the alert in inactive state, so creating some load on the CPU, we
 
 ![09](images/09-rancher-prometheus-pending-alert.png)
 
-![10](images/10-rancher-prometheus-pending-firing.png)
+![10](images/10-rancher-prometheus-firing-alert.png)
 
 

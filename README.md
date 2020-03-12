@@ -900,4 +900,4 @@ As soon as the alert is fired, this will be present in Alertmanager.
 
 Alertmanager is configured to send emails when alerts are received, so checking the inbox we can see something like this:
 
-![12](images/12-rancher-mail.png)
+![12](images/12-rancher-mail.PNG)

@@ -896,5 +896,5 @@ We already saw the alert in inactive state, so creating some load on the CPU, we
 
 As soon as the alert is fired, this will be present in Alertmanager.
 
-![11](image/11-rancher-alertmanager-alert-received.png)
+![11](images/11-rancher-alertmanager-alert-received.png)
 

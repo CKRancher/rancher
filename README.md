@@ -904,4 +904,6 @@ Alertmanager is configured to send emails when alerts are received, so checking 
   <img src="images/12-rancher-mail.PNG" >
 </p>
 
-![12](images/12-rancher-mail.PNG)
+## Conclusion
+
+

@@ -880,7 +880,7 @@ In Prometheus UI using same expression we configured for the alert ,(`rate (cont
 
 ![08](images/08-rancher-prometheus-monitor-deployment.png)
 
-Let's make some load on the first running Pod, to see the value changing. When this will be greater than 0.04 we should have an alert too:
+Let's put some load in one of the Pods to see the value changing. When this will be greater than 0.04 we should have an alert too:
 
 ```bash
 $  kubectl exec -it nginx-deployment-5754944d6c-7g6gq -- /bin/sh
@@ -888,7 +888,7 @@ $  kubectl exec -it nginx-deployment-5754944d6c-7g6gq -- /bin/sh
 ```
 
 The alert has three phases: Inactive - when condition is not met, Pending - condition is met, Firing - alert is fired.
-We already saw the alert in inactive state, so creating some load on the CPU, we will observe the rest too:
+We already saw the alert in inactive state, so puting some load on the CPU will let us observe the rest of them too:
 
 ![09](images/09-rancher-prometheus-pending-alert.png)
 

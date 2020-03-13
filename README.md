@@ -876,7 +876,7 @@ nginx-deployment-5754944d6c-lhvx8   1/1     Running   0          67s
 nginx-deployment-5754944d6c-whhtr   1/1     Running   0          67s
 ```
 
-In Prometheus UI using same expression we configured for the alert, we can check the data for these Pods. The value for all the Pods should be 0.
+In Prometheus UI using same expression we configured for the alert ,(`rate (container_cpu_usage_seconds_total{pod_name=~"nginx-.*", image!="", container!="POD"}[5m])`) we can check the data for these Pods. The value for all the Pods should be 0.
 
 ![08](images/08-rancher-prometheus-monitor-deployment.png)
 

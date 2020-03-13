@@ -906,4 +906,4 @@ Alertmanager is configured to send emails when alerts are received, so checking 
 
 ## Conclusion
 
-
+We know how important monitoring is, but this would not be complete without alerting. Alerts can notify us as soon as a problem occurs, letting us know imediatly when something goes wrong with our system. Prometheus covers both of these aspects, monitoring the solution and alerting via its Alertmanager component. We saw how alerts are defined in Prometheus configuration and how alerts reach Alertmanager when fired. From here based on the definition/integration of AlertManager we received an email with details of the triggered alert (also this can be sent via Slack or PagerDuty).

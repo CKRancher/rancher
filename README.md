@@ -42,7 +42,7 @@ To perform this demo, you will need the following:
 - A [Google Cloud Platform](https://cloud.google.com/free) account (the free tier provided is more than enough). Any other cloud should work the same.
 - [Rancher](https://rancher.com) v2.3.5 (latest while writing the article).
 - A Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12. (Running EKS or AKS should be the same).
-- Helm binary [installed](https://helm.sh/docs/intro/install/) on a working machine and tiller running inside Kubernetes cluster.
+- Helm binary [installed](https://helm.sh/docs/intro/install/) on a working machine.
 
 **Starting a Rancher instance**
 
@@ -56,50 +56,31 @@ As soon as this operation is ready and you have configured the kubeconfig file w
 
 **Deploying Prometheus Software**
 
-<details><summary>Configuring Helm and Tiller</summary>
+<details><summary>Configuring Helm</summary>
 
-Let's check Helm's version. From the output we can see beside the version that the server side component (Tiller) is not installed.
-
-```bash
-$ helm version
-Client: &version.Version{SemVer:"v2.15.2", GitCommit:"8dce272473e5f2a7bf58ce79bb5c3691db54c96b", GitTreeState:"clean"}
-Error: could not find tiller
-```
-
-Let's install `tiller` and run the version command again to see how the output changes.
-
-```
-$ helm init --wait
-$HELM_HOME has been configured at /home/rustudorcalin/.helm.
-
-Tiller (the Helm server-side component) has been installed into your Kubernetes Cluster.
-
-Please note: by default, Tiller is deployed with an insecure 'allow unauthenticated users' policy.
-To prevent this, run `helm init` with the --tiller-tls-verify flag.
-For more information on securing your installation see: https://docs.helm.sh/using_helm/#securing-your-helm-installation
-```
+Let's check what Helm version are we running.
 
 ```bash
 $ helm version
-Client: &version.Version{SemVer:"v2.15.2", GitCommit:"8dce272473e5f2a7bf58ce79bb5c3691db54c96b", GitTreeState:"clean"}
-Server: &version.Version{SemVer:"v2.15.2", GitCommit:"8dce272473e5f2a7bf58ce79bb5c3691db54c96b", GitTreeState:"clean"}
+version.BuildInfo{Version:"v3.1.2", GitCommit:"d878d4d45863e42fd5cff6743294a11d28a9abce", GitTreeState:"clean", GoVersion:"go1.13.8"}
 ```
 
-We need to create a service account for `tiller` and to take care of RBAC permissions. 
+As we are using Helm 3, we will need to add the stable repository, as this is not set by default.
 
 ```bash
-$ kubectl --namespace kube-system create serviceaccount tiller
-serviceaccount/tiller created
-
-$ kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-clusterrolebinding.rbac.authorization.k8s.io/tiller-cluster-rule created
-
-$ kubectl --namespace kube-system patch deploy tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
-deployment.extensions/tiller-deploy patched
+$ helm repo add stable https://kubernetes-charts.storage.googleapis.com
+"stable" has been added to your repositories
 ```
+
+```bash
+$ helm repo list
+NAME    URL
+stable  https://kubernetes-charts.storage.googleapis.com
+```
+
 </details></br>
 
-With Helm and Tiller configured, we can proceed with the installation of `prometheus-operator`.
+With Helm configured, we can proceed with the installation of `prometheus-operator`.
 
 ```bash
 $ helm install --namespace monitoring --name demo stable/prometheus-operator

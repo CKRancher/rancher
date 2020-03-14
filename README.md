@@ -1,64 +1,64 @@
-# Custom alerts using Prometheus queries
-
+# Custom Alerts Using Prometheus Queries
+By Calin Rus
 ## Introduction
 
-[**Prometheus**](https://prometheus.io) is an open-source system for monitoring and alerting originally developed by Soundcloud. It moved to CNCF in 2016 becoming one of the most popular projects after Kubernetes. It it used to monitor from an entire Linux server, to a stand-alone webserver, a database service or a single process. In Prometheus terminology the things it monitors are called **Targets**. Each unit of a target is called **a metric**. It pulls (scrapes) targets over http, at a set interval, to collect metrics and places the data in its **time-series database**. Metrics about targets can be queried using [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query language.
+[**Prometheus**](https://prometheus.io) is an open-source system for monitoring and alerting originally developed by Soundcloud. It moved to Cloud Native Computing Federation (CNCF) in 2016 and become one of the most popular projects after Kubernetes. It can monitor everything from an entire Linux server to a stand-alone web server, a database service or a single process. In Prometheus terminology, the things it monitors are called **Targets**. Each unit of a target is called **a metric**. It pulls (scrapes) targets over http, at a set interval, to collect metrics and places the data in its **time-series database**. Metrics about targets can be queried using the [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query language.
 
 In this article we will show a step-by-step setup guide on how to:
-- install Prometheus (using [prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart) in order to monitor/alert based on custom events.
-- write and configure custom alerting rules, which will fire alerts when conditions are met.
-- integrate Alertmanager in order to  handle these alerts sent by client applications (Prometheus server in this case).
-- integrate Alertmanager with a mail account where notifications will be sent to.
+- Install Prometheus (using [prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) Helm chart) in order to monitor/alert based on custom events.
+- Write and configure custom alerting rules, which will fire alerts when conditions are met.
+- Integrate Alertmanager in order to  handle these alerts sent by client applications (Prometheus server in this case).
+- Integrate Alertmanager with a mail account where notifications will be sent.
 
-## Understanding Prometheus and its abstractions
+## Understanding Prometheus and its Abstractions
 
 Let's see below all the components that form the Prometheus ecosystem (photo credit: [http://prometheus.io](https://prometheus.io/docs/introduction/overview/))
+To Do insert image 1
+![01 caption](images/01-rancher-prometheus-architecture.png) All of the components in the Prometheus ecosystem (credit http://prometheus.io)
 
-![01](images/01-rancher-prometheus-architecture.png)
+Here's a quick review of the terms that are relevant to this exercise:
+- **Prometheus Server**: main component that scrapes and stores metrics in a time series database.
+    - **Scrape**: pulling method to retrieve metrics; it happens at a 'scrape_interval' usually of 10-60 seconds.
+    - **Target**: server client where data gets retrieved.
+- **Service Discovery**: enables Prometheus to identify the applications it needs to monitor and pull metrics from within a dynamic environment.
+- **Alert Manager**: component responsible for handling alerts (silencing, inhibition, aggregation and sending out notifications via methods such as email, PagerDuty, Slack, etc)
+- **Data Visualization**: scraped data is stored in local storage and can be queried directly using PromQL or viewed via Grafana dashboards.   
 
-From all these, worths mentionining once more few terms we already used or are relevant to our exercise:
-- Prometheus Server: main component that scrapes and stores metrics in a time series database.
-    - Scrape: pulling method to retrieve metrics; it happens at a 'scrape_interval' usually of 10-60sec.
-    - Target: server client where data gets retrieved from.
-- Service discovery: it enables Prometheus to identify the applications it needs to monitor and pull metrics from within a dynamic environment
-- Alert Manager: component responsible for handling alerts (silencing, inhibition, aggregation and sending out notifications via methods such as email, PagerDuty, Slack, etc)
-- Data visualization: scraped data is stored in local storage and can be queried directly using PromQL or view it via Grafana dashboards.   
+## Understanding the Prometheus Operator
 
-## Understanding Prometheus Operator
+According to CoreOS, owners of the Prometheus Operator project, it makes the Prometheus configuration Kubernetes native and manages and operates Prometheus and Alertmanager clusters.
 
-In few words, as described by CoreOS - owners of the project, Prometheus Operator makes the Prometheus configuration Kubernetes native and manages and operates Prometheus and Alertmanager clusters.
+The Operator introduces the following Kubernetes custom resource definitions ([CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)): Prometheus, ServiceMonitor, PrometheusRule and Alertmanager. More details about these can be found [here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/design.md). In our demo, we'll use `PrometheusRule` to define custom rules.
 
-The Operator introduces the following Kubernetes custom resource definitions ([CRDs](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)): Prometheus, ServiceMonitor, PrometheusRule, Alertmanager. More details about these can be found [here](https://github.com/coreos/prometheus-operator/blob/master/Documentation/design.md). In our demo we will be using `PrometheusRule` to define some custome rules.
+To install, we will use the [stable/prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) Helm chart.
 
-To install, we will use the [stable/prometheus-operator](https://github.com/helm/charts/tree/master/stable/prometheus-operator) helm chart.
+The default installation deploys the followings components: prometheus-operator, prometheus, alertmanager, node-exporter, kube-state-metrics and grafana. By default, Prometheus scrapes the main Kubernetes components: kube-apiserver, kube-scheduler, kube-controller-manager and etcd.
 
-The default installation deploys the followings components: prometheus-operator, prometheus, alertmanager, node-exporter, kube-state-metrics and grafana. By default, Prometheus will scrape the main Kubernetes components: kube-apiserver, kube-scheduler, kube-controller-manager, etcd.
-
-## Installing Prometheus software
+## Installing Prometheus Software
 
 **Prerequisites**
 
-To perform this demo you will need the following:
-- a Google Cloud Platform account, the free tier provided is more than enough (any other cloud should work the same)
-- [Rancher](https://rancher.com) v2.3.5 (latest while writing the article)
-- Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12 (running EKS or AKS should be the same)
-- helm binary [installed](https://helm.sh/docs/intro/install/) on a working machine and tiller running inside Kubernetes cluster
+To perform this demo, you will need the following:
+- A [Google Cloud Platform](https://cloud.google.com/free) account (the free tier provided is more than enough). Any other cloud should work the same.
+- [Rancher](https://rancher.com) v2.3.5 (latest while writing the article).
+- A Kubernetes cluster running on Google Kubernetes Engine version 1.15.9-gke.12. (Running EKS or AKS should be the same).
+- Helm binary [installed](https://helm.sh/docs/intro/install/) on a working machine and tiller running inside Kubernetes cluster.
 
 **Starting a Rancher instance**
 
-There is a very intuitive getting started guide for this purpose [here](https://rancher.com/quick-start/).
+Follow this intuitive [getting started guide](https:////rancher.com/quick-start). 
 
-**Using Rancher to deploy a GKE cluster**
+**Using Rancher to Deploy a GKE Cluster**
 
-Use Rancher to set up and configure your Kubernetes cluster, follow the how-to [guide](https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/hosted-kubernetes-clusters/gke/).
+Use Rancher to set up and configure your Kubernetes cluster. Follow the how-to [guide](https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/hosted-kubernetes-clusters/gke/).
 
-As soon as this operation is ready and you have configured the kubeconfig file with appropriate credentials and endpoint information you can make use of `kubectl` to point at that specific cluster.
+As soon as this operation is ready and you have configured the kubeconfig file with appropriate credentials and endpoint information, you can make use of `kubectl` to point to that specific cluster.
 
-**Deploying Prometheus software**
+**Deploying Prometheus Software**
 
-<details><summary>Configuring helm and tiller</summary>
+<details><summary>Configuring Helm and Tiller</summary>
 
-Let's check helm's version. From the output we can see beside the version that the server side component (tiller) is not installed.
+Let's check Helm's version. From the output we can see beside the version that the server side component (Tiller) is not installed.
 
 ```bash
 $ helm version
@@ -66,7 +66,7 @@ Client: &version.Version{SemVer:"v2.15.2", GitCommit:"8dce272473e5f2a7bf58ce79bb
 Error: could not find tiller
 ```
 
-Let's install `tiller` and run again the version command to see how the output changes now.
+Let's install `tiller` and run the version command again to see how the output changes.
 
 ```
 $ helm init --wait
@@ -99,7 +99,7 @@ deployment.extensions/tiller-deploy patched
 ```
 </details></br>
 
-Having helm and tiller configured we can now proceed with the installation of `prometheus-operator`.
+With Helm and Tiller configured, we can proceed with the installation of `prometheus-operator`.
 
 ```bash
 $ helm install --namespace monitoring --name demo stable/prometheus-operator
@@ -318,11 +318,12 @@ to create & configure Alertmanager and Prometheus instances using the Operator.
 ```
 </details></br>
 
-## Prometheus alerting rules
+## 
+Rules
 
-Besides monitoring, Prometheus allows us to have rules which should trigger alerts. These rules are based on Prometheus expression language expressions. Whenever a condition is met, the alert is fired and it's sent to Alertmanager. We will see later on how a rule looks like.
+Besides monitoring, Prometheus allows us to have rules that should trigger alerts. These rules are based on Prometheus expression language expressions. Whenever a condition is met, the alert is fired and it's sent to Alertmanager. Later, we'll see what a rule looks like.
 
-Going back to our demo. As soon as helm has finished the deployment we can check what pods have been created:
+Let's get back to our demo. As soon as Helm has finished the deployment we can check what pods have been created:
 
 ```bash
 $ kubectl -n monitoring get pods
@@ -337,9 +338,9 @@ demo-prometheus-operator-operator-b9c9b5457-db9dj      2/2     Running   0      
 prometheus-demo-prometheus-operator-prometheus-0       3/3     Running   1          50s
 ```
 
-In order to access Prometheus and AlertManager from a web browser we need to use port forwarding.
+In order to access Prometheus and AlertManager from a Web browser, we need to use port forwarding.
 
-As this demo uses a GCP instance, and all kubectl commands are run from this instance, we will be using the instance's external IP address in order to access the resources.
+As this demo uses a GCP instance, and all kubectl commands are run from this instance, we use the instance's external IP address to access the resources.
 
 ```bash
 $ kubectl port-forward --address 0.0.0.0 -n monitoring prometheus-demo-prometheus-operator-prometheus-0 9090  >/dev/null 2>&1 &
@@ -412,7 +413,7 @@ monitoring-demo-prometheus-operator-kubernetes-resources.yaml                  m
 monitoring-demo-prometheus-operator-kubernetes-storage.yaml                    monitoring-demo-prometheus-operator-prometheus.yaml
 ```
 
-To understand more on how these rules are loaded into Prometheus we should check the Pods' details. We can see for prometheus container the config file which is used `etc/prometheus/config_out/prometheus.env.yaml`. Checking further this config will show us the location of the files or the frequency set for yaml files to be rechecked.
+To understand more on how these rules are loaded into Prometheus, let's check the Pod's details. We can see that the config file used for the prometheus container is  `etc/prometheus/config_out/prometheus.env.yaml`. This config file will show us the location of the files or the frequency set for yaml files to be rechecked.
 
 ```bash
 $ kubectl -n monitoring describe pod prometheus-demo-prometheus-operator-prometheus-0
@@ -659,14 +660,14 @@ Events:            <none>
 
 ![05](images/05-rancher-prometheus-alerts-one-rulefile-left.png)
 
-We will remove all those three default alerts, and we will create one of our own:
+Let's remove all three default alerts and create one of our own:
 
 ```bash
 $ kubectl -n monitoring edit prometheusrules demo-prometheus-operator-alertmanager.rules
 prometheusrule.monitoring.coreos.com/demo-prometheus-operator-alertmanager.rules edited
 ```
 
-The own custom alert looks like this:
+Our custom alert looks like this:
 
 ```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules
@@ -702,14 +703,14 @@ Events:            <none>
 ![06](images/06-rancher-prometheus-one-alerts.png)
 
 
-Quickly going through the options of the alert we created:
-- annotations: set of informational labels describing the alert
-- expr: expression written in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/)
+Here are the options for the alert we created:
+- annotations: set of informational labels describing the alert.
+- expr: expression written in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/).
 - for: optional parameter, if set will tell Prometheus to check that the alert continues to be active during the defined period. The alert will be fired only after this duration.
-- labels: additional labels that can be attached to the alert
+- labels: additional labels that can be attached to the alert.
 More information about alerts can be found [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
 
-As we're done with Prometheus alerts, let's configure now Alertmanager so as soon as it gets the alert we configured it will notify us via an email. Alertmanagers' configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
+Now that we're finished with Prometheus alerts, let's configure  Alertmanager so as soon as it gets the our alert it will notify us via email. Alertmanager's configuration sits in a Kubernetes [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) object.
 
 ```bash
 $ kubectl get secrets -n monitoring
@@ -729,7 +730,7 @@ prometheus-demo-prometheus-operator-prometheus              Opaque              
 prometheus-demo-prometheus-operator-prometheus-tls-assets   Opaque                                0      31m
 ```
 
-We are interested only in `alertmanager-demo-prometheus-operator-alertmanager`. Let’s look at it:
+We're interested only in `alertmanager-demo-prometheus-operator-alertmanager`. Let’s look at it:
 
 ```bash
 kubectl -n monitoring get secret alertmanager-demo-prometheus-operator-alertmanager -o yaml
@@ -752,7 +753,7 @@ metadata:
 type: Opaque
 ```
 
-alertmanager.yaml field is encoded with base64, let’s see what’s inside:
+alertmanager.yaml field is encoded with base64. Let’s see what’s inside:
 
 ```bash
 $ echo 'Z2xvYmFsOgogIHJlc29sdmVfdGltZW91dDogNW0KcmVjZWl2ZXJzOgotIG5hbWU6ICJudWxsIgpyb3V0ZToKICBncm91cF9ieToKICAtIGpvYgogIGdyb3VwX2ludGVydmFsOiA1bQogIGdyb3VwX3dhaXQ6IDMwcwogIHJlY2VpdmVyOiAibnVsbCIKICByZXBlYXRfaW50ZXJ2YWw6IDEyaAogIHJvdXRlczoKICAtIG1hdGNoOgogICAgICBhbGVydG5hbWU6IFdhdGNoZG9nCiAgICByZWNlaXZlcjogIm51bGwiCg==' | base64 --decode
@@ -773,7 +774,7 @@ route:
     receiver: "null"
 ```
 
-As we can observe, this is the default Alertmanagers' configuration. This configuration can be seen as well in Status tab from Alertmanager UI. We will change it with one which will actually do something, in our case send emails:
+As we can see, this is the default Alertmanager configuration. You can also see this configuration in Status tab of the Alertmanager UI. Let's change it with one that will actually do something -- in our case, send emails:
 
 ```bash
 $ cat alertmanager.yaml
@@ -806,13 +807,13 @@ receivers:
       Subject: 'Demo ALERT'
 ```
 
-We need first to encode this:
+First we need to encode this:
 
 ```bash
 $  cat alertmanager.yaml | base64 -w0
 ```
 
-Once we get the encoded output, we need to fill it in the below yaml file which we will apply:
+Once we get the encoded output, we need to fill it in the below yaml file that we will apply:
 
 ```bash
 cat alertmanager-secret-k8s.yaml
@@ -832,7 +833,7 @@ Warning: kubectl apply should be used on resource created by either kubectl crea
 secret/alertmanager-demo-prometheus-operator-alertmanager configured
 ```
 
-The configuration is automatically reloaded, the changes are present in UI as well.
+The configuration is automatically reloaded and the changes are present in UI as well.
 
 ![07](images/07-rancher-alertmanager-status-tab.png)
 
@@ -876,19 +877,23 @@ nginx-deployment-5754944d6c-lhvx8   1/1     Running   0          67s
 nginx-deployment-5754944d6c-whhtr   1/1     Running   0          67s
 ```
 
-In Prometheus UI using same expression we configured for the alert ,(`rate (container_cpu_usage_seconds_total{pod_name=~"nginx-.*", image!="", container!="POD"}[5m])`) we can check the data for these Pods. The value for all the Pods should be 0.
+In the Prometheus UI, using the same expression we configured for the alert ,(`rate (container_cpu_usage_seconds_total{pod_name=~"nginx-.*", image!="", container!="POD"}[5m])`) we can check the data for these Pods. The value for all the Pods should be 0.
 
 ![08](images/08-rancher-prometheus-monitor-deployment.png)
 
-Let's put some load in one of the Pods to see the value changing. When this will be greater than 0.04 we should have an alert too:
+Let's put some load in one of the Pods to see the value change. When the value is greater than 0.04, we should have an alert:
 
 ```bash
 $  kubectl exec -it nginx-deployment-5754944d6c-7g6gq -- /bin/sh
 # yes > /dev/null
 ```
 
-The alert has three phases: Inactive - when condition is not met, Pending - condition is met, Firing - alert is fired.
-We already saw the alert in inactive state, so puting some load on the CPU will let us observe the rest of them too:
+The alert has three phases:
+* Inactive - condition is not met. 
+* Pending - condition is met.
+* Firing - alert is fired.
+
+We already saw the alert in inactive state, so puting some load on the CPU will let us observe the rest of them, too:
 
 ![09](images/09-rancher-prometheus-pending-alert.png)
 
@@ -898,7 +903,7 @@ As soon as the alert is fired, this will be present in Alertmanager.
 
 ![11](images/11-rancher-alertmanager-alert-received.png)
 
-Alertmanager is configured to send emails when alerts are received, so checking the inbox we can see something like this:
+Alertmanager is configured to send emails when we receive alerts. If we check the inbox, we'll see something like this:
 
 <p align="center">
   <img src="images/12-rancher-mail.PNG" >
@@ -906,4 +911,5 @@ Alertmanager is configured to send emails when alerts are received, so checking 
 
 ## Conclusion
 
-We know how important monitoring is, but this would not be complete without alerting. Alerts can notify us as soon as a problem occurs, letting us know imediatly when something goes wrong with our system. Prometheus covers both of these aspects, monitoring the solution and alerting via its Alertmanager component. We saw how alerts are defined in Prometheus configuration and how alerts reach Alertmanager when fired. From here based on the definition/integration of AlertManager we received an email with details of the triggered alert (also this can be sent via Slack or PagerDuty).
+We know how important monitoring is, but it would not be complete without alerting. Alerts can notify us as soon as a problem occurs, letting us know immediatly when something goes wrong with our system. Prometheus covers both of these aspects -- monitoring the solution and alerting via its Alertmanager component. We saw how alerts are defined in Prometheus configuration and how alerts reach Alertmanager when fired. From here based on the definition/integration of AlertManager we received an email with details of the triggered alert (this can also be sent via Slack or PagerDuty).
+

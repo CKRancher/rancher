@@ -56,8 +56,6 @@ As soon as this operation is ready and you have configured the kubeconfig file w
 
 **Deploying Prometheus Software**
 
-<details><summary>Configuring Helm</summary>
-
 Let's check what Helm version are we running.
 
 ```bash
@@ -77,8 +75,6 @@ $ helm repo list
 NAME    URL
 stable  https://kubernetes-charts.storage.googleapis.com
 ```
-
-</details></br>
 
 With Helm configured, we can proceed with the installation of `prometheus-operator`. (make sure you have `monitoring` namespace created in Kubernetes, if not just run `kubectl create namespace monitoring`)
 

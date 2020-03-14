@@ -71,12 +71,24 @@ $ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 ```
 
 ```bash
+$ helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "stable" chart repository
+Update Complete. ⎈ Happy Helming!⎈
+```
+
+```bash
 $ helm repo list
 NAME    URL
 stable  https://kubernetes-charts.storage.googleapis.com
 ```
 
-With Helm configured, we can proceed with the installation of `prometheus-operator`. (make sure you have `monitoring` namespace created in Kubernetes, if not just run `kubectl create namespace monitoring`)
+With Helm configured, we can proceed with the installation of `prometheus-operator`.
+
+```bash
+$ kubectl create namespace monitoring
+namespace/monitoring created
+```
 
 ```bash
 $ helm install --namespace monitoring demo stable/prometheus-operator
@@ -389,7 +401,9 @@ NAME                                          AGE
 demo-prometheus-operator-alertmanager.rules   8m53s
 ```
 
-Let's check the rule from the CLI so we can compare with what we will see in browser.
+**OBS:** We left one rule only just to make this demo easier. But there is a rule which should never be deleted. This sits in `monitoring-demo-prometheus-operator-general.rules.yaml` and it is called Watchdog. The alert is always firing and it's purpose is to ensure that the entire alerting pipeline is functional.
+
+Let's check from CLI the rule we left and compare it with what we will see in browser.
 
 ```bash
 $ kubectl -n monitoring describe prometheusrule demo-prometheus-operator-alertmanager.rules

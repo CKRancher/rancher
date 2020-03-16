@@ -12,8 +12,8 @@ In this article we will show a step-by-step setup guide on how to:
 
 ## Understanding Prometheus and its Abstractions
 
-Let's see below all the components that form the Prometheus ecosystem (photo credit: [http://prometheus.io](https://prometheus.io/docs/introduction/overview/))
-To Do insert image 1
+Below, you can see all the components that form the Prometheus ecosystem.
+
 ![01 caption](images/01-rancher-prometheus-architecture.png) All of the components in the Prometheus ecosystem (credit http://prometheus.io)
 
 Here's a quick review of the terms that are relevant to this exercise:
